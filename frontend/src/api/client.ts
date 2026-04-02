@@ -139,6 +139,8 @@ apiClient.interceptors.response.use(
         return Promise.reject({
           status,
           code: 'OPS_DISABLED',
+          reason: 'OPS_DISABLED',
+          metadata: apiData.metadata,
           message: apiData.message || error.message,
           url
         })
@@ -169,6 +171,8 @@ apiClient.interceptors.response.use(
                   reject({
                     status,
                     code: apiData.code,
+                    reason: apiData.reason,
+                    metadata: apiData.metadata,
                     message: apiData.message || apiData.detail || error.message
                   })
                 }
@@ -234,6 +238,8 @@ apiClient.interceptors.response.use(
             return Promise.reject({
               status: 401,
               code: 'TOKEN_REFRESH_FAILED',
+              reason: 'TOKEN_REFRESH_FAILED',
+              metadata: undefined,
               message: 'Session expired. Please log in again.'
             })
           }
@@ -267,7 +273,9 @@ apiClient.interceptors.response.use(
       return Promise.reject({
         status,
         code: apiData.code,
+        reason: apiData.reason,
         error: apiData.error,
+        metadata: apiData.metadata,
         message: apiData.message || apiData.detail || error.message
       })
     }
@@ -275,6 +283,9 @@ apiClient.interceptors.response.use(
     // Network error
     return Promise.reject({
       status: 0,
+      code: 'NETWORK_ERROR',
+      reason: 'NETWORK_ERROR',
+      metadata: undefined,
       message: 'Network error. Please check your connection.'
     })
   }

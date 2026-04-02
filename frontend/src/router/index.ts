@@ -62,7 +62,8 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/auth/EmailVerifyView.vue'),
     meta: {
       requiresAuth: false,
-      title: 'Verify Email'
+      title: 'Verify Email',
+      titleKey: 'auth.verifyYourEmail'
     }
   },
   {
@@ -71,7 +72,8 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/auth/OAuthCallbackView.vue'),
     meta: {
       requiresAuth: false,
-      title: 'OAuth Callback'
+      title: 'OAuth Callback',
+      titleKey: 'auth.oauth.callbackTitle'
     }
   },
   {
@@ -80,7 +82,8 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/auth/LinuxDoCallbackView.vue'),
     meta: {
       requiresAuth: false,
-      title: 'LinuxDo OAuth Callback'
+      title: 'LinuxDo OAuth Callback',
+      titleKey: 'auth.linuxdo.callbackTitle'
     }
   },
   {
@@ -89,7 +92,8 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/auth/DiscordCallbackView.vue'),
     meta: {
       requiresAuth: false,
-      title: 'Discord OAuth Callback'
+      title: 'Discord OAuth Callback',
+      titleKey: 'auth.discord.callbackTitle'
     }
   },
   {
@@ -108,7 +112,8 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/auth/ResetPasswordView.vue'),
     meta: {
       requiresAuth: false,
-      title: 'Reset Password'
+      title: 'Reset Password',
+      titleKey: 'auth.resetPasswordTitle'
     }
   },
   {

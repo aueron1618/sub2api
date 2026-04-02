@@ -427,6 +427,45 @@ export default {
     invitationCodeInvalid: 'Invalid or used invitation code',
     invitationCodeValidating: 'Validating invitation code...',
     invitationCodeInvalidCannotRegister: 'Invalid invitation code. Please check and try again',
+    errors: {
+      networkError: 'Network error. Please check your connection and try again.',
+      sessionExpired: 'Session expired. Please log in again.',
+      invalidOrExpired2FASession: 'The two-factor authentication session is invalid or has expired. Please sign in again.',
+      backendModeAdminOnly: 'This site is currently in backend mode. Only administrators can sign in.',
+      reasons: {
+        EMAIL_EXISTS: 'This email address is already registered.',
+        EMAIL_RESERVED: 'This email address cannot be used for registration right now.',
+        INVALID_CREDENTIALS: 'Incorrect email or password.',
+        USER_NOT_ACTIVE: 'This account is not active. Please contact the administrator.',
+        INVALID_TOKEN: 'The token is invalid or has expired. Please try again.',
+        TOKEN_EXPIRED: 'Your session has expired. Please sign in again.',
+        ACCESS_TOKEN_EXPIRED: 'Your session has expired. Please sign in again.',
+        TOKEN_REVOKED: 'Your session is no longer valid. Please sign in again.',
+        REFRESH_TOKEN_INVALID: 'Your login session is invalid. Please sign in again.',
+        REFRESH_TOKEN_EXPIRED: 'Your login session has expired. Please sign in again.',
+        REFRESH_TOKEN_REUSED: 'An abnormal login session was detected. Please sign in again.',
+        TOKEN_REFRESH_FAILED: 'Session expired. Please log in again.',
+        EMAIL_VERIFY_REQUIRED: 'Please verify your email first.',
+        EMAIL_SUFFIX_NOT_ALLOWED: 'This email domain is not allowed for registration.',
+        REGISTRATION_DISABLED: 'Registration is currently unavailable.',
+        SERVICE_UNAVAILABLE: 'The service is temporarily unavailable. Please try again later.',
+        INVITATION_CODE_REQUIRED: 'Please enter an invitation code.',
+        INVITATION_CODE_INVALID: 'The invitation code is invalid or has already been used.',
+        OAUTH_INVITATION_REQUIRED: 'This site requires an invitation code. Please enter one to complete registration.',
+        PASSWORD_RESET_DISABLED: 'Password reset is currently disabled on this site.',
+        INVALID_VERIFY_CODE: 'The verification code is invalid or has expired.',
+        VERIFY_CODE_TOO_FREQUENT: 'Too many requests. Please try again later.',
+        VERIFY_CODE_MAX_ATTEMPTS: 'Too many verification attempts. Please request a new code.',
+        INVALID_RESET_TOKEN: 'The password reset link is invalid or has expired.',
+        TOTP_NOT_SETUP: 'Two-factor authentication is not enabled for this account.',
+        TOTP_INVALID_CODE: 'Incorrect two-factor authentication code. Please try again.',
+        TOTP_SETUP_EXPIRED: 'The two-factor authentication setup session has expired. Please start again.',
+        TOTP_TOO_MANY_ATTEMPTS: 'Too many two-factor authentication attempts. Please try again later.',
+        VERIFY_CODE_REQUIRED: 'Please enter the verification code.',
+        PASSWORD_REQUIRED: 'Please enter your password.',
+        INVALID_REQUEST: 'Invalid request parameters. Please check and try again.'
+      }
+    },
     linuxdo: {
       signIn: 'Continue with Linux.do',
       orContinue: 'or continue with email',
@@ -439,7 +478,17 @@ export default {
       invalidPendingToken: 'The registration token has expired. Please sign in with Linux.do again.',
       completeRegistration: 'Complete Registration',
       completing: 'Completing registration…',
-      completeRegistrationFailed: 'Registration failed. Please check your invitation code and try again.'
+      completeRegistrationFailed: 'Registration failed. Please check your invitation code and try again.',
+      errors: {
+        providerError: 'Linux.do authorization was cancelled or denied. Please try signing in again.',
+        missingParams: 'Missing Linux.do callback parameters. Please start the sign-in flow again.',
+        invalidState: 'Linux.do sign-in state validation failed. Please start the sign-in flow again.',
+        missingVerifier: 'Linux.do sign-in verification has expired. Please start the sign-in flow again.',
+        configError: 'Linux.do sign-in is misconfigured. Please contact the administrator.',
+        tokenExchangeFailed: 'Failed to exchange the Linux.do authorization code. Please try again later.',
+        userinfoFailed: 'Failed to fetch Linux.do user information. Please try again later.',
+        loginFailed: 'Linux.do sign-in failed. Please try again later.'
+      }
     },
     discord: {
       signIn: 'Continue with Discord',
@@ -452,9 +501,26 @@ export default {
       invalidPendingToken: 'The registration token has expired. Please sign in with Discord again.',
       completeRegistration: 'Complete Registration',
       completing: 'Completing registration…',
-      completeRegistrationFailed: 'Registration failed. Please check your invitation code and try again.'
+      completeRegistrationFailed: 'Registration failed. Please check your invitation code and try again.',
+      errors: {
+        providerError: 'Discord authorization was cancelled or denied. Please try signing in again.',
+        missingParams: 'Missing Discord callback parameters. Please start the sign-in flow again.',
+        invalidState: 'Discord sign-in state validation failed. Please start the sign-in flow again.',
+        missingVerifier: 'Discord sign-in verification has expired. Please start the sign-in flow again.',
+        configError: 'Discord sign-in is misconfigured. Please contact the administrator.',
+        tokenExchangeFailed: 'Failed to exchange the Discord authorization code. Please try again later.',
+        userinfoFailed: 'Failed to fetch Discord user information. Please try again later.',
+        guildVerifyFailed: 'Discord server verification failed. Please make sure you joined the required server and have the required role.',
+        loginFailed: 'Discord sign-in failed. Please try again later.',
+        reasons: {
+          DISCORD_GUILD_VERIFY_FAILED: 'Discord server verification failed. Please try again later.',
+          DISCORD_REQUIRED_GUILD_MEMBERSHIP: 'You have not joined the required Discord server yet.',
+          DISCORD_REQUIRED_ROLE_MISSING: 'You do not have any of the required Discord roles yet.'
+        }
+      }
     },
     oauth: {
+      callbackTitle: 'OAuth Callback',
       code: 'Code',
       state: 'State',
       fullUrl: 'Full URL'

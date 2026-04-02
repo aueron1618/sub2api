@@ -72,6 +72,7 @@ import { AuthLayout } from '@/components/layout'
 import Icon from '@/components/icons/Icon.vue'
 import { useAuthStore, useAppStore } from '@/stores'
 import { completeLinuxDoOAuthRegistration } from '@/api/auth'
+import { buildAuthErrorMessage, resolveOAuthCallbackErrorMessage } from '@/utils/authError'
 
 const route = useRoute()
 const router = useRouter()
@@ -125,10 +126,11 @@ async function handleSubmitInvitation() {
     await authStore.setToken(tokenData.access_token)
     appStore.showSuccess(t('auth.loginSuccess'))
     await router.replace(redirectTo.value)
-  } catch (e: unknown) {
-    const err = e as { message?: string; response?: { data?: { message?: string } } }
-    invitationError.value =
-      err.response?.data?.message || err.message || t('auth.linuxdo.completeRegistrationFailed')
+  } catch (error: unknown) {
+    invitationError.value = buildAuthErrorMessage(error, {
+      fallback: t('auth.linuxdo.completeRegistrationFailed'),
+      t
+    })
   } finally {
     isSubmitting.value = false
   }
@@ -144,7 +146,8 @@ onMounted(async () => {
     params.get('redirect') || (route.query.redirect as string | undefined) || '/dashboard'
   )
   const error = params.get('error')
-  const errorDesc = params.get('error_description') || params.get('error_message') || ''
+  const errorReason = params.get('error_message') || ''
+  const errorDesc = params.get('error_description') || ''
 
   if (error) {
     if (error === 'invitation_required') {
@@ -160,7 +163,14 @@ onMounted(async () => {
       isProcessing.value = false
       return
     }
-    errorMessage.value = errorDesc || error
+    errorMessage.value = resolveOAuthCallbackErrorMessage({
+      provider: 'linuxdo',
+      code: error,
+      reason: errorReason,
+      description: errorDesc,
+      fallback: t('auth.linuxdo.errors.loginFailed'),
+      t
+    })
     appStore.showError(errorMessage.value)
     isProcessing.value = false
     return
@@ -188,9 +198,11 @@ onMounted(async () => {
     await authStore.setToken(token)
     appStore.showSuccess(t('auth.loginSuccess'))
     await router.replace(redirect)
-  } catch (e: unknown) {
-    const err = e as { message?: string; response?: { data?: { detail?: string } } }
-    errorMessage.value = err.response?.data?.detail || err.message || t('auth.loginFailed')
+  } catch (error: unknown) {
+    errorMessage.value = buildAuthErrorMessage(error, {
+      fallback: t('auth.loginFailed'),
+      t
+    })
     appStore.showError(errorMessage.value)
     isProcessing.value = false
   }

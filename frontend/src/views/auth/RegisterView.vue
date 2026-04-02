@@ -728,7 +728,8 @@ async function handleRegister(): Promise<void> {
 
     // Handle registration error
     errorMessage.value = buildAuthErrorMessage(error, {
-      fallback: t('auth.registrationFailed')
+      fallback: t('auth.registrationFailed'),
+      t
     })
 
     // Also show error toast

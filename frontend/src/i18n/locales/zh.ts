@@ -426,6 +426,45 @@ export default {
     invitationCodeInvalid: '邀请码无效或已被使用',
     invitationCodeValidating: '正在验证邀请码...',
     invitationCodeInvalidCannotRegister: '邀请码无效，请检查后重试',
+    errors: {
+      networkError: '网络异常，请检查连接后重试。',
+      sessionExpired: '会话已过期，请重新登录。',
+      invalidOrExpired2FASession: '两步验证会话无效或已过期，请重新登录。',
+      backendModeAdminOnly: '当前站点处于后端模式，仅允许管理员登录。',
+      reasons: {
+        EMAIL_EXISTS: '该邮箱已被注册。',
+        EMAIL_RESERVED: '该邮箱暂不可用于注册。',
+        INVALID_CREDENTIALS: '邮箱或密码错误。',
+        USER_NOT_ACTIVE: '当前账户未启用，请联系管理员。',
+        INVALID_TOKEN: '令牌无效或已过期，请重新操作。',
+        TOKEN_EXPIRED: '登录已过期，请重新登录。',
+        ACCESS_TOKEN_EXPIRED: '登录已过期，请重新登录。',
+        TOKEN_REVOKED: '当前登录已失效，请重新登录。',
+        REFRESH_TOKEN_INVALID: '登录状态无效，请重新登录。',
+        REFRESH_TOKEN_EXPIRED: '登录状态已过期，请重新登录。',
+        REFRESH_TOKEN_REUSED: '检测到异常登录状态，请重新登录。',
+        TOKEN_REFRESH_FAILED: '会话已过期，请重新登录。',
+        EMAIL_VERIFY_REQUIRED: '请先完成邮箱验证。',
+        EMAIL_SUFFIX_NOT_ALLOWED: '该邮箱域名不在允许注册范围内。',
+        REGISTRATION_DISABLED: '注册功能暂未开放。',
+        SERVICE_UNAVAILABLE: '服务暂时不可用，请稍后重试。',
+        INVITATION_CODE_REQUIRED: '请输入邀请码。',
+        INVITATION_CODE_INVALID: '邀请码无效或已被使用。',
+        OAUTH_INVITATION_REQUIRED: '当前站点要求邀请码，请输入邀请码完成注册。',
+        PASSWORD_RESET_DISABLED: '站点暂未开放密码重置功能。',
+        INVALID_VERIFY_CODE: '验证码无效或已过期。',
+        VERIFY_CODE_TOO_FREQUENT: '请求过于频繁，请稍后再试。',
+        VERIFY_CODE_MAX_ATTEMPTS: '验证码尝试次数过多，请重新获取验证码。',
+        INVALID_RESET_TOKEN: '密码重置链接无效或已过期。',
+        TOTP_NOT_SETUP: '当前账户尚未开启两步验证。',
+        TOTP_INVALID_CODE: '两步验证码错误，请重试。',
+        TOTP_SETUP_EXPIRED: '两步验证配置会话已过期，请重新开始。',
+        TOTP_TOO_MANY_ATTEMPTS: '两步验证尝试过多，请稍后再试。',
+        VERIFY_CODE_REQUIRED: '请输入验证码。',
+        PASSWORD_REQUIRED: '请输入密码。',
+        INVALID_REQUEST: '请求参数无效，请检查后重试。'
+      }
+    },
     linuxdo: {
       signIn: '使用 Linux.do 登录',
       orContinue: '或使用邮箱密码继续',
@@ -438,7 +477,17 @@ export default {
       invalidPendingToken: '注册凭证已失效，请重新使用 Linux.do 登录。',
       completeRegistration: '完成注册',
       completing: '正在完成注册...',
-      completeRegistrationFailed: '注册失败，请检查邀请码后重试。'
+      completeRegistrationFailed: '注册失败，请检查邀请码后重试。',
+      errors: {
+        providerError: 'Linux.do 授权已取消或被拒绝，请重新登录。',
+        missingParams: 'Linux.do 登录回调参数缺失，请重新发起登录。',
+        invalidState: 'Linux.do 登录状态校验失败，请重新发起登录。',
+        missingVerifier: 'Linux.do 登录校验信息已失效，请重新发起登录。',
+        configError: 'Linux.do 登录配置异常，请联系管理员。',
+        tokenExchangeFailed: 'Linux.do 授权码交换失败，请稍后重试。',
+        userinfoFailed: '获取 Linux.do 用户信息失败，请稍后重试。',
+        loginFailed: 'Linux.do 登录失败，请稍后重试。'
+      }
     },
     discord: {
       signIn: '使用 Discord 登录',
@@ -451,9 +500,26 @@ export default {
       invalidPendingToken: '注册凭证已失效，请重新使用 Discord 登录。',
       completeRegistration: '完成注册',
       completing: '正在完成注册...',
-      completeRegistrationFailed: '注册失败，请检查邀请码后重试。'
+      completeRegistrationFailed: '注册失败，请检查邀请码后重试。',
+      errors: {
+        providerError: 'Discord 授权已取消或被拒绝，请重新登录。',
+        missingParams: 'Discord 登录回调参数缺失，请重新发起登录。',
+        invalidState: 'Discord 登录状态校验失败，请重新发起登录。',
+        missingVerifier: 'Discord 登录校验信息已失效，请重新发起登录。',
+        configError: 'Discord 登录配置异常，请联系管理员。',
+        tokenExchangeFailed: 'Discord 授权码交换失败，请稍后重试。',
+        userinfoFailed: '获取 Discord 用户信息失败，请稍后重试。',
+        guildVerifyFailed: 'Discord 服务器验证失败，请确认已加入目标服务器并具备所需身份组。',
+        loginFailed: 'Discord 登录失败，请稍后重试。',
+        reasons: {
+          DISCORD_GUILD_VERIFY_FAILED: 'Discord 服务器验证失败，请稍后重试。',
+          DISCORD_REQUIRED_GUILD_MEMBERSHIP: '你尚未加入要求的 Discord 服务器。',
+          DISCORD_REQUIRED_ROLE_MISSING: '你尚未拥有要求的 Discord 身份组。'
+        }
+      }
     },
     oauth: {
+      callbackTitle: 'OAuth 回调',
       code: '授权码',
       state: '状态',
       fullUrl: '完整URL'

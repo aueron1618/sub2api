@@ -217,6 +217,7 @@ import Icon from '@/components/icons/Icon.vue'
 import TurnstileWidget from '@/components/TurnstileWidget.vue'
 import { useAuthStore, useAppStore } from '@/stores'
 import { getPublicSettings, isTotp2FARequired } from '@/api/auth'
+import { buildAuthErrorMessage } from '@/utils/authError'
 import type { TotpLoginResponse } from '@/types'
 
 const { t } = useI18n()
@@ -390,15 +391,7 @@ async function handleLogin(): Promise<void> {
     }
 
     // Handle login error
-    const err = error as { message?: string; response?: { data?: { detail?: string } } }
-
-    if (err.response?.data?.detail) {
-      errorMessage.value = err.response.data.detail
-    } else if (err.message) {
-      errorMessage.value = err.message
-    } else {
-      errorMessage.value = t('auth.loginFailed')
-    }
+    errorMessage.value = buildAuthErrorMessage(error, { fallback: t('auth.loginFailed'), t })
 
     // Also show error toast
     appStore.showError(errorMessage.value)
@@ -425,8 +418,7 @@ async function handle2FAVerify(code: string): Promise<void> {
     const redirectTo = (router.currentRoute.value.query.redirect as string) || '/dashboard'
     await router.push(redirectTo)
   } catch (error: unknown) {
-    const err = error as { message?: string; response?: { data?: { message?: string } } }
-    const message = err.response?.data?.message || err.message || t('profile.totp.loginFailed')
+    const message = buildAuthErrorMessage(error, { fallback: t('profile.totp.loginFailed'), t })
 
     if (totpModalRef.value) {
       totpModalRef.value.setError(message)

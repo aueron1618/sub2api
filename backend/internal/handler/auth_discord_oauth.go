@@ -30,6 +30,10 @@ const (
 	discordOAuthDefaultRedirectTo = "/dashboard"
 	discordOAuthDefaultFrontendCB = "/auth/discord/callback"
 
+	discordOAuthReasonGuildVerifyFailed       = "DISCORD_GUILD_VERIFY_FAILED"
+	discordOAuthReasonRequiredGuildMembership = "DISCORD_REQUIRED_GUILD_MEMBERSHIP"
+	discordOAuthReasonRequiredRoleMissing     = "DISCORD_REQUIRED_ROLE_MISSING"
+
 	discordOAuthMaxSubjectLen = 64 - len("discord-")
 )
 
@@ -197,8 +201,16 @@ func (h *AuthHandler) DiscordOAuthCallback(c *gin.Context) {
 	// Guild / Role 校验（在 userinfo 之后、login/register 之前）
 	if cfg.GuildVerifyEnabled && strings.TrimSpace(cfg.RequiredGuildID) != "" {
 		if err := discordVerifyGuildAndRoles(c.Request.Context(), cfg, tokenResp); err != nil {
+			reason := strings.TrimSpace(infraerrors.Reason(err))
+			description := strings.TrimSpace(infraerrors.Message(err))
+			if reason == "" {
+				reason = discordOAuthReasonGuildVerifyFailed
+			}
+			if description == "" || description == infraerrors.UnknownMessage {
+				description = "failed to verify Discord server membership"
+			}
 			log.Printf("[Discord OAuth] guild/role verification failed: %v", err)
-			redirectOAuthError(c, frontendCallback, "guild_verify_failed", err.Error(), "")
+			redirectOAuthError(c, frontendCallback, "guild_verify_failed", reason, description)
 			return
 		}
 	}
@@ -547,7 +559,10 @@ func discordVerifyGuildAndRoles(
 		return true
 	})
 	if !found {
-		return fmt.Errorf("user is not a member of the required Discord server")
+		return infraerrors.Forbidden(
+			discordOAuthReasonRequiredGuildMembership,
+			"user is not a member of the required Discord server",
+		)
 	}
 
 	// Step 2 – optional role verification
@@ -581,7 +596,10 @@ func discordVerifyGuildAndRoles(
 			return nil // user has at least one required role
 		}
 	}
-	return fmt.Errorf("user does not have any of the required roles in the Discord server")
+	return infraerrors.Forbidden(
+		discordOAuthReasonRequiredRoleMissing,
+		"user does not have any of the required roles in the Discord server",
+	)
 }
 
 // parseCommaSeparatedIDs splits a comma-separated string of IDs, trims whitespace,
@@ -600,4 +618,3 @@ func parseCommaSeparatedIDs(raw string) []string {
 	}
 	return result
 }
-
