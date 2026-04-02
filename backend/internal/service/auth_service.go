@@ -37,7 +37,7 @@ var (
 	ErrEmailVerifyRequired     = infraerrors.BadRequest("EMAIL_VERIFY_REQUIRED", "email verification is required")
 	ErrEmailSuffixNotAllowed   = infraerrors.BadRequest("EMAIL_SUFFIX_NOT_ALLOWED", "email suffix is not allowed")
 	ErrRegDisabled             = infraerrors.Forbidden("REGISTRATION_DISABLED", "registration is currently disabled")
-	ErrEmailAuthDisabled       = infraerrors.Forbidden("EMAIL_AUTH_DISABLED", "email registration and login are currently disabled")
+	ErrEmailAuthDisabled       = infraerrors.Forbidden("EMAIL_AUTH_DISABLED", "email registration is currently disabled")
 	ErrServiceUnavailable      = infraerrors.ServiceUnavailable("SERVICE_UNAVAILABLE", "service temporarily unavailable")
 	ErrInvitationCodeRequired  = infraerrors.BadRequest("INVITATION_CODE_REQUIRED", "invitation code is required")
 	ErrInvitationCodeInvalid   = infraerrors.BadRequest("INVITATION_CODE_INVALID", "invalid or used invitation code")
@@ -296,7 +296,7 @@ func (s *AuthService) SendVerifyCodeAsync(ctx context.Context, email string) (*S
 		return nil, ErrRegDisabled
 	}
 	if !s.IsEmailAuthEnabled(ctx) {
-		logger.LegacyPrintf("service.auth", "%s", "[Auth] Email auth is disabled")
+		logger.LegacyPrintf("service.auth", "%s", "[Auth] Email registration is disabled")
 		return nil, ErrEmailAuthDisabled
 	}
 
@@ -410,7 +410,7 @@ func (s *AuthService) IsEmailVerifyEnabled(ctx context.Context) bool {
 	return s.settingService.IsEmailVerifyEnabled(ctx)
 }
 
-// IsEmailAuthEnabled 检查是否允许邮箱密码注册/登录
+// IsEmailAuthEnabled 检查是否允许邮箱注册
 func (s *AuthService) IsEmailAuthEnabled(ctx context.Context) bool {
 	if s.settingService == nil {
 		return true
@@ -420,10 +420,6 @@ func (s *AuthService) IsEmailAuthEnabled(ctx context.Context) bool {
 
 // Login 用户登录，返回JWT token
 func (s *AuthService) Login(ctx context.Context, email, password string) (string, *User, error) {
-	if !s.IsEmailAuthEnabled(ctx) {
-		return "", nil, ErrEmailAuthDisabled
-	}
-
 	// 查找用户
 	user, err := s.userRepo.GetByEmail(ctx, email)
 	if err != nil {

@@ -20,22 +20,8 @@
         <DiscordOAuthSection v-if="discordOAuthEnabled" :disabled="isLoading" />
       </div>
 
-      <div
-        v-if="!emailAuthEnabled"
-        class="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800/50 dark:bg-amber-900/20"
-      >
-        <div class="flex items-start gap-3">
-          <div class="flex-shrink-0">
-            <Icon name="exclamationCircle" size="md" class="text-amber-500" />
-          </div>
-          <p class="text-sm text-amber-700 dark:text-amber-400">
-            {{ t('auth.emailLoginDisabled') }}
-          </p>
-        </div>
-      </div>
-
       <!-- Login Form -->
-      <form v-else @submit.prevent="handleLogin" class="space-y-5">
+      <form @submit.prevent="handleLogin" class="space-y-5">
         <!-- Email Input -->
         <div>
           <label for="email" class="input-label">

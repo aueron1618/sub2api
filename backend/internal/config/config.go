@@ -167,9 +167,9 @@ type IdempotencyConfig struct {
 }
 
 type DiscordConnectConfig struct {
-	Enabled             bool   `mapstructure:"enabled"`
-	ClientID            string `mapstructure:"client_id"`
-	ClientSecret        string `mapstructure:"client_secret"`
+	Enabled      bool   `mapstructure:"enabled"`
+	ClientID     string `mapstructure:"client_id"`
+	ClientSecret string `mapstructure:"client_secret"`
 
 	// Guild / Role 校验
 	GuildVerifyEnabled bool   `mapstructure:"guild_verify_enabled"` // 是否启用服务器/身份组校验

@@ -695,7 +695,7 @@
               <Toggle v-model="form.registration_enabled" />
             </div>
 
-            <!-- Email Auth -->
+            <!-- Email Registration -->
             <div
               class="flex items-center justify-between border-t border-gray-100 pt-4 dark:border-dark-700"
             >

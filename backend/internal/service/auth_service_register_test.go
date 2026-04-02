@@ -347,14 +347,14 @@ func TestAuthService_Register_CreateEmailExistsRace(t *testing.T) {
 	require.ErrorIs(t, err, ErrEmailExists)
 }
 
-func TestAuthService_Login_EmailAuthDisabled(t *testing.T) {
-	repo := &authLoginUserRepoStub{}
+func TestAuthService_Login_EmailAuthDisabled_DoesNotBlockLogin(t *testing.T) {
+	repo := &authLoginUserRepoStub{userRepoStub: userRepoStub{user: &User{Email: "user@test.com", PasswordHash: mustHashPasswordForAuthTest(t, "password"), Status: StatusActive}}}
 	service := newAuthService(repo, map[string]string{
 		SettingKeyEmailAuthEnabled: "false",
 	}, nil)
 
 	_, _, err := service.Login(context.Background(), "user@test.com", "password")
-	require.ErrorIs(t, err, ErrEmailAuthDisabled)
+	require.NoError(t, err)
 }
 
 func TestAuthService_Login_EmailAuthEnabledByDefaultWhenSettingMissing(t *testing.T) {
