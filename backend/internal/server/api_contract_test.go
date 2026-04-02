@@ -223,10 +223,10 @@ func TestAPIContracts(t *testing.T) {
 			}`,
 		},
 		{
-			name: "GET /api/v1/subscriptions",
+			name: "GET /api/v1/quotas",
 			setup: func(t *testing.T, deps *contractDeps) {
 				t.Helper()
-				// 普通用户订阅接口不应包含 assigned_* / notes 等管理员字段。
+				// 普通用户配额接口不应包含 assigned_* / notes 等管理员字段。
 				deps.userSubRepo.SetByUserID(1, []service.UserSubscription{
 					{
 						ID:              501,
@@ -247,7 +247,7 @@ func TestAPIContracts(t *testing.T) {
 				})
 			},
 			method:     http.MethodGet,
-			path:       "/api/v1/subscriptions",
+			path:       "/api/v1/quotas",
 			wantStatus: http.StatusOK,
 			wantJSON: `{
 				"code": 0,
@@ -512,6 +512,13 @@ func TestAPIContracts(t *testing.T) {
 						"linuxdo_connect_client_id": "",
 						"linuxdo_connect_client_secret_configured": false,
 						"linuxdo_connect_redirect_url": "",
+						"discord_connect_enabled": false,
+						"discord_connect_client_id": "",
+						"discord_connect_client_secret_configured": false,
+						"discord_connect_redirect_url": "",
+						"discord_guild_verify_enabled": false,
+						"discord_required_guild_id": "",
+						"discord_required_role_ids": "",
 						"ops_monitoring_enabled": false,
 						"ops_realtime_monitoring_enabled": true,
 						"ops_query_mode_default": "auto",
@@ -534,6 +541,7 @@ func TestAPIContracts(t *testing.T) {
 						"identity_patch_prompt": "",
 						"sora_client_enabled": false,
 						"invitation_code_enabled": false,
+						"login_invitation_code_visible": false,
 						"home_content": "",
 					"hide_ccs_import_button": false,
 					"purchase_subscription_enabled": false,
@@ -698,7 +706,7 @@ func newContractDeps(t *testing.T) *contractDeps {
 
 	v1Subs := v1.Group("")
 	v1Subs.Use(jwtAuth)
-	v1Subs.GET("/subscriptions", subscriptionHandler.List)
+	v1Subs.GET("/quotas", subscriptionHandler.List)
 
 	v1Redeem := v1.Group("")
 	v1Redeem.Use(jwtAuth)

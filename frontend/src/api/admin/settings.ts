@@ -23,6 +23,7 @@ export interface SystemSettings {
   password_reset_enabled: boolean
   frontend_url: string
   invitation_code_enabled: boolean
+  login_invitation_code_visible: boolean
   totp_enabled: boolean // TOTP 双因素认证
   totp_encryption_key_configured: boolean // TOTP 加密密钥是否已配置
   // Default settings
@@ -63,6 +64,15 @@ export interface SystemSettings {
   linuxdo_connect_client_secret_configured: boolean
   linuxdo_connect_redirect_url: string
 
+  // Discord Connect OAuth settings
+  discord_connect_enabled: boolean
+  discord_connect_client_id: string
+  discord_connect_client_secret_configured: boolean
+  discord_connect_redirect_url: string
+  discord_guild_verify_enabled: boolean
+  discord_required_guild_id: string
+  discord_required_role_ids: string
+
   // Model fallback configuration
   enable_model_fallback: boolean
   fallback_model_anthropic: string
@@ -100,6 +110,7 @@ export interface UpdateSettingsRequest {
   password_reset_enabled?: boolean
   frontend_url?: string
   invitation_code_enabled?: boolean
+  login_invitation_code_visible?: boolean
   totp_enabled?: boolean // TOTP 双因素认证
   default_balance?: number
   default_concurrency?: number
@@ -132,6 +143,13 @@ export interface UpdateSettingsRequest {
   linuxdo_connect_client_id?: string
   linuxdo_connect_client_secret?: string
   linuxdo_connect_redirect_url?: string
+  discord_connect_enabled?: boolean
+  discord_connect_client_id?: string
+  discord_connect_client_secret?: string
+  discord_connect_redirect_url?: string
+  discord_guild_verify_enabled?: boolean
+  discord_required_guild_id?: string
+  discord_required_role_ids?: string
   enable_model_fallback?: boolean
   fallback_model_anthropic?: string
   fallback_model_openai?: string

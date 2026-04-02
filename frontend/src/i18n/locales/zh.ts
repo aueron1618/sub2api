@@ -335,7 +335,7 @@ export default {
     profile: '个人资料',
     users: '用户管理',
     groups: '分组管理',
-    subscriptions: '订阅管理',
+    subscriptions: '配额中心',
     accounts: '账号管理',
     proxies: 'IP管理',
     redeemCodes: '兑换码',
@@ -349,8 +349,8 @@ export default {
     expand: '展开',
     logout: '退出登录',
     github: 'GitHub',
-    mySubscriptions: '我的订阅',
-    buySubscription: '充值/订阅',
+    mySubscriptions: '我的配额',
+    buySubscription: '充值/购买配额',
     docs: '文档',
     sora: 'Sora 创作'
   },
@@ -436,6 +436,19 @@ export default {
       backToLogin: '返回登录',
       invitationRequired: '该 Linux.do 账号尚未注册，站点已开启邀请码注册，请输入邀请码以完成注册。',
       invalidPendingToken: '注册凭证已失效，请重新使用 Linux.do 登录。',
+      completeRegistration: '完成注册',
+      completing: '正在完成注册...',
+      completeRegistrationFailed: '注册失败，请检查邀请码后重试。'
+    },
+    discord: {
+      signIn: '使用 Discord 登录',
+      callbackTitle: '正在完成登录',
+      callbackProcessing: '正在验证 Discord 登录信息，请稍候...',
+      callbackHint: '如果页面未自动跳转，请返回登录页重试。',
+      callbackMissingToken: '登录信息缺失，请返回重试。',
+      backToLogin: '返回登录',
+      invitationRequired: '该 Discord 账号尚未注册，站点已开启邀请码注册，请输入邀请码以完成注册。',
+      invalidPendingToken: '注册凭证已失效，请重新使用 Discord 登录。',
       completeRegistration: '完成注册',
       completing: '正在完成注册...',
       completeRegistrationFailed: '注册失败，请检查邀请码后重试。'
@@ -1440,7 +1453,7 @@ export default {
       amountRequired: '请输入有效金额',
       insufficientBalance: '余额不足',
       setAllowedGroups: '设置允许分组',
-      allowedGroupsHint: '选择此用户可以使用的标准分组。订阅类型分组请在订阅管理中配置。',
+      allowedGroupsHint: '选择此用户可以使用的标准分组。订阅类型分组请在配额中心中配置。',
       noStandardGroups: '暂无标准分组',
       allowAllGroups: '允许全部分组',
       allowAllGroupsHint: '用户可以使用任何非专属分组',
@@ -1799,13 +1812,13 @@ export default {
       }
     },
 
-    // Subscriptions Management
+    // Quota Center
     subscriptions: {
-      title: '订阅管理',
-      description: '管理用户订阅和配额限制',
-      assignSubscription: '分配订阅',
-      adjustSubscription: '调整订阅',
-      revokeSubscription: '撤销订阅',
+      title: '配额中心',
+      description: '管理用户配额授权和用量限制',
+      assignSubscription: '分配配额',
+      adjustSubscription: '调整配额',
+      revokeSubscription: '撤销配额',
       allStatus: '全部状态',
       allGroups: '全部分组',
       allPlatforms: '全部平台',
@@ -1837,18 +1850,18 @@ export default {
       },
       form: {
         user: '用户',
-        group: '订阅分组',
+        group: '配额分组',
         validityDays: '有效期（天）',
         adjustDays: '调整天数'
       },
       selectUser: '选择用户',
-      selectGroup: '选择订阅分组',
-      groupHint: '仅显示订阅计费类型的分组',
-      validityHint: '订阅的有效天数',
-      adjustingFor: '为以下用户调整订阅',
+      selectGroup: '选择配额分组',
+      groupHint: '仅显示订阅计费（配额周期）类型的分组',
+      validityHint: '配额授权的有效天数',
+      adjustingFor: '为以下用户调整配额',
       currentExpiration: '当前到期时间',
       adjustDaysPlaceholder: '正数延长，负数缩短',
-      adjustHint: '输入正数延长订阅，负数缩短订阅（缩短后剩余天数需大于0）',
+      adjustHint: '输入正数延长配额有效期，负数缩短配额有效期（缩短后剩余天数需大于0）',
       assign: '分配',
       assigning: '分配中...',
       adjust: '调整',
@@ -1859,50 +1872,50 @@ export default {
       resetQuotaConfirm: "确定要重置 '{user}' 的每日、每周和每月用量配额吗？用量将归零并从今天开始重新计算。",
       quotaResetSuccess: '配额重置成功',
       failedToResetQuota: '重置配额失败',
-      noSubscriptionsYet: '暂无订阅',
-      assignFirstSubscription: '分配一个订阅以开始使用。',
-      subscriptionAssigned: '订阅分配成功',
-      subscriptionAdjusted: '订阅调整成功',
-      subscriptionRevoked: '订阅撤销成功',
-      failedToLoad: '加载订阅列表失败',
-      failedToAssign: '分配订阅失败',
-      failedToAdjust: '调整订阅失败',
-      failedToRevoke: '撤销订阅失败',
+      noSubscriptionsYet: '暂无配额记录',
+      assignFirstSubscription: '分配一个配额后即可开始管理。',
+      subscriptionAssigned: '配额分配成功',
+      subscriptionAdjusted: '配额调整成功',
+      subscriptionRevoked: '配额撤销成功',
+      failedToLoad: '加载配额列表失败',
+      failedToAssign: '分配配额失败',
+      failedToAdjust: '调整配额失败',
+      failedToRevoke: '撤销配额失败',
       adjustWouldExpire: '调整后剩余天数必须大于0',
       adjustOutOfRange: '调整天数必须在 -36500 到 36500 之间',
       pleaseSelectUser: '请选择用户',
       pleaseSelectGroup: '请选择分组',
       validityDaysRequired: '请输入有效的天数（至少1天）',
-      revokeConfirm: "确定要撤销 '{user}' 的订阅吗？此操作无法撤销。",
+      revokeConfirm: "确定要撤销 '{user}' 的配额吗？此操作无法撤销。",
       guide: {
-        title: '订阅管理教程',
-        subtitle: '订阅模式允许你按时间周期为用户分配使用额度，支持日/周/月配额限制。按照以下步骤即可完成配置。',
+        title: '配额中心教程',
+        subtitle: '配额中心支持按时间周期为用户分配可用额度，并提供日/周/月配额限制。按照以下步骤即可完成配置。',
         showGuide: '使用指南',
         step1: {
-          title: '创建订阅分组',
+          title: '创建配额分组',
           line1: '前往「分组管理」页面，点击「创建分组」',
           line2: '将计费类型设为「订阅」，配置日/周/月额度限制',
           line3: '保存分组，确保状态为「正常」',
           link: '前往分组管理'
         },
         step2: {
-          title: '分配订阅给用户',
-          line1: '点击本页右上角「分配订阅」按钮',
+          title: '分配配额给用户',
+          line1: '点击本页右上角「分配配额」按钮',
           line2: '在弹窗中搜索用户邮箱并选择目标用户',
-          line3: '选择订阅分组、设置有效期天数，点击「分配」'
+          line3: '选择配额分组、设置有效期天数，点击「分配」'
         },
         step3: {
-          title: '管理已有订阅'
+          title: '管理已有配额'
         },
         actions: {
           adjust: '调整',
-          adjustDesc: '延长或缩短订阅有效期',
+          adjustDesc: '延长或缩短配额有效期',
           resetQuota: '重置配额',
           resetQuotaDesc: '将日/周/月用量归零，重新开始计算',
           revoke: '撤销',
-          revokeDesc: '立即终止该用户的订阅，不可恢复'
+          revokeDesc: '立即终止该用户的配额授权，不可恢复'
         },
-        tip: '提示：订阅分组下拉列表中只会显示计费类型为「订阅」且状态为「正常」的分组。如果没有可选项，请先到分组管理中创建。'
+        tip: '提示：配额分组下拉列表中只会显示计费类型为「订阅」且状态为「正常」的分组。如果没有可选项，请先到分组管理中创建。'
       }
     },
 
@@ -4273,6 +4286,8 @@ export default {
         promoCodeHint: '允许用户在注册时使用优惠码',
         invitationCode: '邀请码注册',
         invitationCodeHint: '开启后，用户注册时需要填写有效的邀请码',
+        loginInvitationCode: '登录页邀请码',
+        loginInvitationCodeHint: '开启后，登录页将显示邀请码输入框',
         passwordReset: '忘记密码',
         passwordResetHint: '允许用户通过邮箱重置密码',
         frontendUrl: '前端地址',
@@ -4313,6 +4328,33 @@ export default {
         redirectUrlHint: '需与 Connect.Linux.Do 中配置的回调地址一致（必须是 http(s) 完整 URL）',
         quickSetCopy: '使用当前站点生成并复制',
         redirectUrlSetAndCopied: '已使用当前站点生成回调地址并复制到剪贴板'
+      },
+      discord: {
+        title: 'Discord 登录',
+        description: '配置 Discord OAuth，用于 Sub2API 用户登录',
+        enable: '启用 Discord 登录',
+        enableHint: '在登录/注册页面显示 Discord 登录入口',
+        clientId: 'Client ID',
+        clientIdPlaceholder: '例如：123456789012345678',
+        clientIdHint: '从 Discord Developer Portal 获取',
+        clientSecret: 'Client Secret',
+        clientSecretPlaceholder: '********',
+        clientSecretHint: '用于后端交换 token（请保密）',
+        clientSecretConfiguredPlaceholder: '********',
+        clientSecretConfiguredHint: '密钥已配置，留空以保留当前值。',
+        redirectUrl: '回调地址（Redirect URL）',
+        redirectUrlPlaceholder: 'https://your-domain.com/api/v1/auth/oauth/discord/callback',
+        redirectUrlHint: '需与 Discord 应用中配置的回调地址一致（必须是 http(s) 完整 URL）',
+        quickSetCopy: '使用当前站点生成并复制',
+        redirectUrlSetAndCopied: '已使用当前站点生成回调地址并复制到剪贴板',
+        guildVerify: '服务器/身份组校验',
+        guildVerifyHint: '启用后，用户必须加入指定 Discord 服务器并拥有指定身份组才能登录/注册',
+        requiredGuildId: '服务器 ID (Guild ID)',
+        requiredGuildIdPlaceholder: '例如：123456789012345678',
+        requiredGuildIdHint: '用户必须已加入此 Discord 服务器。开启校验后必填。',
+        requiredRoleIds: '身份组 ID (Role IDs)',
+        requiredRoleIdsPlaceholder: '例如：111222333,444555666',
+        requiredRoleIdsHint: '逗号分隔，用户拥有其中任意一个即通过。留空则仅校验是否入服。',
       },
       defaults: {
         title: '用户默认设置',
@@ -4404,11 +4446,11 @@ export default {
         hideCcsImportButtonHint: '启用后将在 API Keys 页面隐藏"导入 CCS"按钮'
       },
       purchase: {
-        title: '充值/订阅页面',
-        description: '在侧边栏展示“充值/订阅”入口，并在页面内通过 iframe 打开指定链接',
-        enabled: '显示充值/订阅入口',
+        title: '充值/购买配额页面',
+        description: '在侧边栏展示“充值/购买配额”入口，并在页面内通过 iframe 打开指定链接',
+        enabled: '显示充值/购买配额入口',
         enabledHint: '仅在标准模式（非简单模式）下展示',
-        url: '充值/订阅页面 URL',
+        url: '充值/购买配额页面 URL',
         urlPlaceholder: 'https://example.com/purchase',
         urlHint: '必须是完整的 http(s) 链接',
         iframeWarning:
@@ -4821,9 +4863,9 @@ export default {
 
   // Subscription Progress (Header component)
   subscriptionProgress: {
-    title: '我的订阅',
-    viewDetails: '查看订阅详情',
-    activeCount: '{count} 个有效订阅',
+    title: '我的配额',
+    viewDetails: '查看配额详情',
+    activeCount: '{count} 个生效配额',
     daily: '每日',
     weekly: '每周',
     monthly: '每月',
@@ -4831,8 +4873,8 @@ export default {
     expired: '已过期',
     expiresToday: '今天到期',
     expiresTomorrow: '明天到期',
-    viewAll: '查看全部订阅',
-    noSubscriptions: '暂无有效订阅',
+    viewAll: '查看全部配额',
+    noSubscriptions: '暂无生效配额',
     unlimited: '无限制'
   },
 
@@ -4862,13 +4904,13 @@ export default {
 
   // Recharge / Subscription Page
   purchase: {
-    title: '充值/订阅',
-    description: '通过内嵌页面完成充值/订阅',
+    title: '充值/购买配额',
+    description: '通过内嵌页面完成充值或购买配额',
     openInNewTab: '新窗口打开',
     notEnabledTitle: '该功能未开启',
-    notEnabledDesc: '管理员暂未开启充值/订阅入口，请联系管理员。',
-    notConfiguredTitle: '充值/订阅链接未配置',
-    notConfiguredDesc: '管理员已开启入口，但尚未配置充值/订阅链接，请联系管理员。'
+    notEnabledDesc: '管理员暂未开启充值/购买配额入口，请联系管理员。',
+    notConfiguredTitle: '充值/购买配额链接未配置',
+    notConfiguredDesc: '管理员已开启入口，但尚未配置充值/购买配额链接，请联系管理员。'
   },
 
   // Custom Page (iframe embed)
@@ -4907,11 +4949,11 @@ export default {
 
   // User Subscriptions Page
   userSubscriptions: {
-    title: '我的订阅',
-    description: '查看您的订阅计划和用量',
-    noActiveSubscriptions: '暂无有效订阅',
-    noActiveSubscriptionsDesc: '您没有任何有效订阅。请联系管理员获取订阅。',
-    failedToLoad: '加载订阅失败',
+    title: '我的配额',
+    description: '查看您的配额计划和用量',
+    noActiveSubscriptions: '暂无生效配额',
+    noActiveSubscriptionsDesc: '您当前没有生效配额。请联系管理员为您分配配额。',
+    failedToLoad: '加载配额失败',
     status: {
       active: '有效',
       expired: '已过期',
@@ -4921,7 +4963,7 @@ export default {
     expires: '到期时间',
     noExpiration: '无到期时间',
     unlimited: '无限制',
-    unlimitedDesc: '该订阅无用量限制',
+    unlimitedDesc: '该配额无用量限制',
     daily: '每日',
     weekly: '每周',
     monthly: '每月',

@@ -72,6 +72,9 @@ const (
 // LinuxDoConnectSyntheticEmailDomain 是 LinuxDo Connect 用户的合成邮箱后缀（RFC 保留域名）。
 const LinuxDoConnectSyntheticEmailDomain = "@linuxdo-connect.invalid"
 
+// DiscordConnectSyntheticEmailDomain 是 Discord OAuth 用户的合成邮箱后缀（RFC 保留域名）。
+const DiscordConnectSyntheticEmailDomain = "@discord-connect.invalid"
+
 // Setting keys
 const (
 	// 注册设置
@@ -82,6 +85,7 @@ const (
 	SettingKeyPasswordResetEnabled             = "password_reset_enabled"              // 是否启用忘记密码功能（需要先开启邮件验证）
 	SettingKeyFrontendURL                      = "frontend_url"                        // 前端基础URL，用于生成邮件中的重置密码链接
 	SettingKeyInvitationCodeEnabled            = "invitation_code_enabled"             // 是否启用邀请码注册
+	SettingKeyLoginInvitationCodeVisible       = "login_invitation_code_visible"       // 登录页是否显示邀请码输入框
 
 	// 邮件服务设置
 	SettingKeySMTPHost     = "smtp_host"      // SMTP服务器地址
@@ -105,6 +109,15 @@ const (
 	SettingKeyLinuxDoConnectClientID     = "linuxdo_connect_client_id"
 	SettingKeyLinuxDoConnectClientSecret = "linuxdo_connect_client_secret"
 	SettingKeyLinuxDoConnectRedirectURL  = "linuxdo_connect_redirect_url"
+
+	// Discord OAuth 登录设置
+	SettingKeyDiscordConnectEnabled      = "discord_connect_enabled"
+	SettingKeyDiscordConnectClientID     = "discord_connect_client_id"
+	SettingKeyDiscordConnectClientSecret = "discord_connect_client_secret"
+	SettingKeyDiscordConnectRedirectURL  = "discord_connect_redirect_url"
+	SettingKeyDiscordGuildVerifyEnabled  = "discord_guild_verify_enabled"
+	SettingKeyDiscordRequiredGuildID     = "discord_required_guild_id"
+	SettingKeyDiscordRequiredRoleIDs     = "discord_required_role_ids"
 
 	// OEM设置
 	SettingKeySoraClientEnabled           = "sora_client_enabled"           // 是否启用 Sora 客户端（管理员手动控制）

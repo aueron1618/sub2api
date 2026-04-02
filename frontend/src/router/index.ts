@@ -84,6 +84,15 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/auth/discord/callback',
+    name: 'DiscordOAuthCallback',
+    component: () => import('@/views/auth/DiscordCallbackView.vue'),
+    meta: {
+      requiresAuth: false,
+      title: 'Discord OAuth Callback'
+    }
+  },
+  {
     path: '/forgot-password',
     name: 'ForgotPassword',
     component: () => import('@/views/auth/ForgotPasswordView.vue'),
@@ -178,13 +187,13 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
-    path: '/subscriptions',
-    name: 'Subscriptions',
+    path: '/quotas',
+    name: 'Quotas',
     component: () => import('@/views/user/SubscriptionsView.vue'),
     meta: {
       requiresAuth: true,
       requiresAdmin: false,
-      title: 'My Subscriptions',
+      title: 'My Quotas',
       titleKey: 'userSubscriptions.title',
       descriptionKey: 'userSubscriptions.description'
     }
@@ -196,7 +205,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       requiresAuth: true,
       requiresAdmin: false,
-      title: 'Purchase Subscription',
+      title: 'Top up / Buy Quota',
       titleKey: 'purchase.title',
       descriptionKey: 'purchase.description'
     }
@@ -279,13 +288,13 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
-    path: '/admin/subscriptions',
-    name: 'AdminSubscriptions',
+    path: '/admin/quotas',
+    name: 'AdminQuotas',
     component: () => import('@/views/admin/SubscriptionsView.vue'),
     meta: {
       requiresAuth: true,
       requiresAdmin: true,
-      title: 'Subscription Management',
+      title: 'Quota Center',
       titleKey: 'admin.subscriptions.title',
       descriptionKey: 'admin.subscriptions.description'
     }
@@ -495,9 +504,9 @@ router.beforeEach((to, _from, next) => {
   if (authStore.isSimpleMode) {
     const restrictedPaths = [
       '/admin/groups',
-      '/admin/subscriptions',
+      '/admin/quotas',
       '/admin/redeem',
-      '/subscriptions',
+      '/quotas',
       '/redeem'
     ]
 

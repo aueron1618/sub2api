@@ -13,7 +13,7 @@ import promoAPI from './promo'
 import announcementsAPI from './announcements'
 import settingsAPI from './settings'
 import systemAPI from './system'
-import subscriptionsAPI from './subscriptions'
+import quotasAPI from './subscriptions'
 import usageAPI from './usage'
 import geminiAPI from './gemini'
 import antigravityAPI from './antigravity'
@@ -40,7 +40,7 @@ export const adminAPI = {
   announcements: announcementsAPI,
   settings: settingsAPI,
   system: systemAPI,
-  subscriptions: subscriptionsAPI,
+  quotas: quotasAPI,
   usage: usageAPI,
   gemini: geminiAPI,
   antigravity: antigravityAPI,
@@ -65,7 +65,7 @@ export {
   announcementsAPI,
   settingsAPI,
   systemAPI,
-  subscriptionsAPI,
+  quotasAPI,
   usageAPI,
   geminiAPI,
   antigravityAPI,

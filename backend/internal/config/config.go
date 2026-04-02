@@ -64,6 +64,7 @@ type Config struct {
 	Ops                     OpsConfig                     `mapstructure:"ops"`
 	JWT                     JWTConfig                     `mapstructure:"jwt"`
 	Totp                    TotpConfig                    `mapstructure:"totp"`
+	Discord                 DiscordConnectConfig          `mapstructure:"discord_connect"`
 	LinuxDo                 LinuxDoConnectConfig          `mapstructure:"linuxdo_connect"`
 	Default                 DefaultConfig                 `mapstructure:"default"`
 	RateLimit               RateLimitConfig               `mapstructure:"rate_limit"`
@@ -163,6 +164,32 @@ type IdempotencyConfig struct {
 	CleanupIntervalSeconds int `mapstructure:"cleanup_interval_seconds"`
 	// CleanupBatchSize 每次清理的最大记录数。
 	CleanupBatchSize int `mapstructure:"cleanup_batch_size"`
+}
+
+type DiscordConnectConfig struct {
+	Enabled             bool   `mapstructure:"enabled"`
+	ClientID            string `mapstructure:"client_id"`
+	ClientSecret        string `mapstructure:"client_secret"`
+
+	// Guild / Role 校验
+	GuildVerifyEnabled bool   `mapstructure:"guild_verify_enabled"` // 是否启用服务器/身份组校验
+	RequiredGuildID    string `mapstructure:"required_guild_id"`    // 必须加入的服务器 ID
+	RequiredRoleIDs    string `mapstructure:"required_role_ids"`    // 必须拥有的身份组 ID（逗号分隔，命中任一即通过）
+
+	AuthorizeURL        string `mapstructure:"authorize_url"`
+	TokenURL            string `mapstructure:"token_url"`
+	UserInfoURL         string `mapstructure:"userinfo_url"`
+	Scopes              string `mapstructure:"scopes"`
+	RedirectURL         string `mapstructure:"redirect_url"`          // 后端回调地址（需在提供方后台登记）
+	FrontendRedirectURL string `mapstructure:"frontend_redirect_url"` // 前端接收 token 的路由（默认：/auth/discord/callback）
+	TokenAuthMethod     string `mapstructure:"token_auth_method"`     // client_secret_post / client_secret_basic / none
+	UsePKCE             bool   `mapstructure:"use_pkce"`
+
+	// 可选：用于从 userinfo JSON 中提取字段的 gjson 路径。
+	// 为空时，服务端会尝试一组常见字段名。
+	UserInfoEmailPath    string `mapstructure:"userinfo_email_path"`
+	UserInfoIDPath       string `mapstructure:"userinfo_id_path"`
+	UserInfoUsernamePath string `mapstructure:"userinfo_username_path"`
 }
 
 type LinuxDoConnectConfig struct {
@@ -1036,6 +1063,18 @@ func load(allowMissingJWTSecret bool) (*Config, error) {
 	}
 	cfg.Server.FrontendURL = strings.TrimSpace(cfg.Server.FrontendURL)
 	cfg.JWT.Secret = strings.TrimSpace(cfg.JWT.Secret)
+	cfg.Discord.ClientID = strings.TrimSpace(cfg.Discord.ClientID)
+	cfg.Discord.ClientSecret = strings.TrimSpace(cfg.Discord.ClientSecret)
+	cfg.Discord.AuthorizeURL = strings.TrimSpace(cfg.Discord.AuthorizeURL)
+	cfg.Discord.TokenURL = strings.TrimSpace(cfg.Discord.TokenURL)
+	cfg.Discord.UserInfoURL = strings.TrimSpace(cfg.Discord.UserInfoURL)
+	cfg.Discord.Scopes = strings.TrimSpace(cfg.Discord.Scopes)
+	cfg.Discord.RedirectURL = strings.TrimSpace(cfg.Discord.RedirectURL)
+	cfg.Discord.FrontendRedirectURL = strings.TrimSpace(cfg.Discord.FrontendRedirectURL)
+	cfg.Discord.TokenAuthMethod = strings.ToLower(strings.TrimSpace(cfg.Discord.TokenAuthMethod))
+	cfg.Discord.UserInfoEmailPath = strings.TrimSpace(cfg.Discord.UserInfoEmailPath)
+	cfg.Discord.UserInfoIDPath = strings.TrimSpace(cfg.Discord.UserInfoIDPath)
+	cfg.Discord.UserInfoUsernamePath = strings.TrimSpace(cfg.Discord.UserInfoUsernamePath)
 	cfg.LinuxDo.ClientID = strings.TrimSpace(cfg.LinuxDo.ClientID)
 	cfg.LinuxDo.ClientSecret = strings.TrimSpace(cfg.LinuxDo.ClientSecret)
 	cfg.LinuxDo.AuthorizeURL = strings.TrimSpace(cfg.LinuxDo.AuthorizeURL)
@@ -1201,6 +1240,25 @@ func setDefaults() {
 
 	// Turnstile
 	viper.SetDefault("turnstile.required", false)
+
+	// Discord OAuth 登录
+	viper.SetDefault("discord_connect.enabled", false)
+	viper.SetDefault("discord_connect.client_id", "")
+	viper.SetDefault("discord_connect.client_secret", "")
+	viper.SetDefault("discord_connect.authorize_url", "https://discord.com/oauth2/authorize")
+	viper.SetDefault("discord_connect.token_url", "https://discord.com/api/v10/oauth2/token")
+	viper.SetDefault("discord_connect.userinfo_url", "https://discord.com/api/v10/users/@me")
+	viper.SetDefault("discord_connect.scopes", "identify email")
+	viper.SetDefault("discord_connect.redirect_url", "")
+	viper.SetDefault("discord_connect.frontend_redirect_url", "/auth/discord/callback")
+	viper.SetDefault("discord_connect.token_auth_method", "client_secret_post")
+	viper.SetDefault("discord_connect.use_pkce", false)
+	viper.SetDefault("discord_connect.userinfo_email_path", "")
+	viper.SetDefault("discord_connect.userinfo_id_path", "")
+	viper.SetDefault("discord_connect.userinfo_username_path", "")
+	viper.SetDefault("discord_connect.guild_verify_enabled", false)
+	viper.SetDefault("discord_connect.required_guild_id", "")
+	viper.SetDefault("discord_connect.required_role_ids", "")
 
 	// LinuxDo Connect OAuth 登录
 	viper.SetDefault("linuxdo_connect.enabled", false)
@@ -1636,6 +1694,69 @@ func (c *Config) Validate() error {
 	}
 	if c.Security.CSP.Enabled && strings.TrimSpace(c.Security.CSP.Policy) == "" {
 		return fmt.Errorf("security.csp.policy is required when CSP is enabled")
+	}
+	if c.Discord.Enabled {
+		if strings.TrimSpace(c.Discord.ClientID) == "" {
+			return fmt.Errorf("discord_connect.client_id is required when discord_connect.enabled=true")
+		}
+		if strings.TrimSpace(c.Discord.AuthorizeURL) == "" {
+			return fmt.Errorf("discord_connect.authorize_url is required when discord_connect.enabled=true")
+		}
+		if strings.TrimSpace(c.Discord.TokenURL) == "" {
+			return fmt.Errorf("discord_connect.token_url is required when discord_connect.enabled=true")
+		}
+		if strings.TrimSpace(c.Discord.UserInfoURL) == "" {
+			return fmt.Errorf("discord_connect.userinfo_url is required when discord_connect.enabled=true")
+		}
+		if strings.TrimSpace(c.Discord.RedirectURL) == "" {
+			return fmt.Errorf("discord_connect.redirect_url is required when discord_connect.enabled=true")
+		}
+		method := strings.ToLower(strings.TrimSpace(c.Discord.TokenAuthMethod))
+		switch method {
+		case "", "client_secret_post", "client_secret_basic", "none":
+		default:
+			return fmt.Errorf("discord_connect.token_auth_method must be one of: client_secret_post/client_secret_basic/none")
+		}
+		if method == "none" && !c.Discord.UsePKCE {
+			return fmt.Errorf("discord_connect.use_pkce must be true when discord_connect.token_auth_method=none")
+		}
+		if (method == "" || method == "client_secret_post" || method == "client_secret_basic") &&
+			strings.TrimSpace(c.Discord.ClientSecret) == "" {
+			return fmt.Errorf("discord_connect.client_secret is required when discord_connect.enabled=true and token_auth_method is client_secret_post/client_secret_basic")
+		}
+		if strings.TrimSpace(c.Discord.FrontendRedirectURL) == "" {
+			return fmt.Errorf("discord_connect.frontend_redirect_url is required when discord_connect.enabled=true")
+		}
+
+		if err := ValidateAbsoluteHTTPURL(c.Discord.AuthorizeURL); err != nil {
+			return fmt.Errorf("discord_connect.authorize_url invalid: %w", err)
+		}
+		if err := ValidateAbsoluteHTTPURL(c.Discord.TokenURL); err != nil {
+			return fmt.Errorf("discord_connect.token_url invalid: %w", err)
+		}
+		if err := ValidateAbsoluteHTTPURL(c.Discord.UserInfoURL); err != nil {
+			return fmt.Errorf("discord_connect.userinfo_url invalid: %w", err)
+		}
+		if err := ValidateAbsoluteHTTPURL(c.Discord.RedirectURL); err != nil {
+			return fmt.Errorf("discord_connect.redirect_url invalid: %w", err)
+		}
+		if err := ValidateFrontendRedirectURL(c.Discord.FrontendRedirectURL); err != nil {
+			return fmt.Errorf("discord_connect.frontend_redirect_url invalid: %w", err)
+		}
+
+		warnIfInsecureURL("discord_connect.authorize_url", c.Discord.AuthorizeURL)
+		warnIfInsecureURL("discord_connect.token_url", c.Discord.TokenURL)
+		warnIfInsecureURL("discord_connect.userinfo_url", c.Discord.UserInfoURL)
+		warnIfInsecureURL("discord_connect.redirect_url", c.Discord.RedirectURL)
+		warnIfInsecureURL("discord_connect.frontend_redirect_url", c.Discord.FrontendRedirectURL)
+
+		// guild/role 校验参数
+		if c.Discord.GuildVerifyEnabled {
+			if strings.TrimSpace(c.Discord.RequiredGuildID) == "" {
+				return fmt.Errorf("discord_connect.required_guild_id is required when discord_connect.guild_verify_enabled=true")
+			}
+			// required_role_ids 可选：留空表示仅校验是否入服，不校验身份组
+		}
 	}
 	if c.LinuxDo.Enabled {
 		if strings.TrimSpace(c.LinuxDo.ClientID) == "" {

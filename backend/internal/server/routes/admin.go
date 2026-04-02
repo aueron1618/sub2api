@@ -67,7 +67,7 @@ func RegisterAdminRoutes(
 		// 系统管理
 		registerSystemRoutes(admin, h)
 
-		// 订阅管理
+		// 配额中心
 		registerSubscriptionRoutes(admin, h)
 
 		// 使用记录管理
@@ -490,23 +490,25 @@ func registerSystemRoutes(admin *gin.RouterGroup, h *handler.Handlers) {
 }
 
 func registerSubscriptionRoutes(admin *gin.RouterGroup, h *handler.Handlers) {
-	subscriptions := admin.Group("/subscriptions")
-	{
-		subscriptions.GET("", h.Admin.Subscription.List)
-		subscriptions.GET("/:id", h.Admin.Subscription.GetByID)
-		subscriptions.GET("/:id/progress", h.Admin.Subscription.GetProgress)
-		subscriptions.POST("/assign", h.Admin.Subscription.Assign)
-		subscriptions.POST("/bulk-assign", h.Admin.Subscription.BulkAssign)
-		subscriptions.POST("/:id/extend", h.Admin.Subscription.Extend)
-		subscriptions.POST("/:id/reset-quota", h.Admin.Subscription.ResetQuota)
-		subscriptions.DELETE("/:id", h.Admin.Subscription.Revoke)
-	}
+	// 管理端配额
+	registerAdminQuotaRoutes(admin.Group("/quotas"), h)
 
-	// 分组下的订阅列表
-	admin.GET("/groups/:id/subscriptions", h.Admin.Subscription.ListByGroup)
+	// 分组下的配额列表
+	admin.GET("/groups/:id/quotas", h.Admin.Subscription.ListByGroup)
 
-	// 用户下的订阅列表
-	admin.GET("/users/:id/subscriptions", h.Admin.Subscription.ListByUser)
+	// 用户下的配额列表
+	admin.GET("/users/:id/quotas", h.Admin.Subscription.ListByUser)
+}
+
+func registerAdminQuotaRoutes(group *gin.RouterGroup, h *handler.Handlers) {
+	group.GET("", h.Admin.Subscription.List)
+	group.GET("/:id", h.Admin.Subscription.GetByID)
+	group.GET("/:id/progress", h.Admin.Subscription.GetProgress)
+	group.POST("/assign", h.Admin.Subscription.Assign)
+	group.POST("/bulk-assign", h.Admin.Subscription.BulkAssign)
+	group.POST("/:id/extend", h.Admin.Subscription.Extend)
+	group.POST("/:id/reset-quota", h.Admin.Subscription.ResetQuota)
+	group.DELETE("/:id", h.Admin.Subscription.Revoke)
 }
 
 func registerUsageRoutes(admin *gin.RouterGroup, h *handler.Handlers) {

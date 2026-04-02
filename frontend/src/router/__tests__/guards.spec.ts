@@ -99,9 +99,9 @@ function simulateGuard(
   if (authState.isSimpleMode) {
     const restrictedPaths = [
       '/admin/groups',
-      '/admin/subscriptions',
+      '/admin/quotas',
       '/admin/redeem',
-      '/subscriptions',
+      '/quotas',
       '/redeem',
     ]
     if (restrictedPaths.some((path) => toPath.startsWith(path))) {
@@ -224,14 +224,14 @@ describe('路由守卫逻辑', () => {
   // --- 简易模式 ---
 
   describe('简易模式受限路由', () => {
-    it('普通用户简易模式访问 /subscriptions 重定向到 /dashboard', () => {
+    it('普通用户简易模式访问 /quotas 重定向到 /dashboard', () => {
       const authState: MockAuthState = {
         isAuthenticated: true,
         isAdmin: false,
         isSimpleMode: true,
         backendModeEnabled: false,
       }
-      const redirect = simulateGuard('/subscriptions', {}, authState)
+      const redirect = simulateGuard('/quotas', {}, authState)
       expect(redirect).toBe('/dashboard')
     })
 
@@ -257,7 +257,7 @@ describe('路由守卫逻辑', () => {
       expect(redirect).toBe('/admin/dashboard')
     })
 
-    it('管理员简易模式访问 /admin/subscriptions 重定向', () => {
+    it('管理员简易模式访问 /admin/quotas 重定向', () => {
       const authState: MockAuthState = {
         isAuthenticated: true,
         isAdmin: true,
@@ -265,7 +265,7 @@ describe('路由守卫逻辑', () => {
         backendModeEnabled: false,
       }
       const redirect = simulateGuard(
-        '/admin/subscriptions',
+        '/admin/quotas',
         { requiresAdmin: true },
         authState
       )

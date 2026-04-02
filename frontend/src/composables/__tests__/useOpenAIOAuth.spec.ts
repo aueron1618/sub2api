@@ -17,7 +17,7 @@ vi.mock('@/api/admin', () => ({
   }
 }))
 
-import { useOpenAIOAuth } from '@/composables/useOpenAIOAuth'
+import { useOpenAIOAuth } from '../useOpenAIOAuth'
 
 describe('useOpenAIOAuth.buildCredentials', () => {
   it('should keep client_id when token response contains it', () => {

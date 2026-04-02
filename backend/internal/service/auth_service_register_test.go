@@ -231,6 +231,9 @@ func TestAuthService_Register_ReservedEmail(t *testing.T) {
 
 	_, _, err := service.Register(context.Background(), "linuxdo-123@linuxdo-connect.invalid", "password")
 	require.ErrorIs(t, err, ErrEmailReserved)
+
+	_, _, err = service.Register(context.Background(), "discord-123@discord-connect.invalid", "password")
+	require.ErrorIs(t, err, ErrEmailReserved)
 }
 
 func TestAuthService_Register_EmailSuffixNotAllowed(t *testing.T) {

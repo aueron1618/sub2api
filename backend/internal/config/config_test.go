@@ -351,6 +351,56 @@ func TestValidateLinuxDoPKCERequiredForPublicClient(t *testing.T) {
 	}
 }
 
+func TestValidateDiscordFrontendRedirectURL(t *testing.T) {
+	resetViperWithJWTSecret(t)
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() error: %v", err)
+	}
+
+	cfg.Discord.Enabled = true
+	cfg.Discord.ClientID = "test-client"
+	cfg.Discord.ClientSecret = "test-secret"
+	cfg.Discord.RedirectURL = "https://example.com/api/v1/auth/oauth/discord/callback"
+	cfg.Discord.TokenAuthMethod = "client_secret_post"
+	cfg.Discord.UsePKCE = false
+
+	cfg.Discord.FrontendRedirectURL = "javascript:alert(1)"
+	err = cfg.Validate()
+	if err == nil {
+		t.Fatalf("Validate() expected error for javascript scheme, got nil")
+	}
+	if !strings.Contains(err.Error(), "discord_connect.frontend_redirect_url") {
+		t.Fatalf("Validate() expected frontend_redirect_url error, got: %v", err)
+	}
+}
+
+func TestValidateDiscordPKCERequiredForPublicClient(t *testing.T) {
+	resetViperWithJWTSecret(t)
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() error: %v", err)
+	}
+
+	cfg.Discord.Enabled = true
+	cfg.Discord.ClientID = "test-client"
+	cfg.Discord.ClientSecret = ""
+	cfg.Discord.RedirectURL = "https://example.com/api/v1/auth/oauth/discord/callback"
+	cfg.Discord.FrontendRedirectURL = "/auth/discord/callback"
+	cfg.Discord.TokenAuthMethod = "none"
+	cfg.Discord.UsePKCE = false
+
+	err = cfg.Validate()
+	if err == nil {
+		t.Fatalf("Validate() expected error when token_auth_method=none and use_pkce=false, got nil")
+	}
+	if !strings.Contains(err.Error(), "discord_connect.use_pkce") {
+		t.Fatalf("Validate() expected use_pkce error, got: %v", err)
+	}
+}
+
 func TestLoadDefaultDashboardCacheConfig(t *testing.T) {
 	resetViperWithJWTSecret(t)
 
@@ -746,6 +796,32 @@ func TestProvideConfig(t *testing.T) {
 	}
 }
 
+func TestValidateConfigWithDiscordEnabled(t *testing.T) {
+	resetViperWithJWTSecret(t)
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() error: %v", err)
+	}
+
+	cfg.Security.CSP.Enabled = true
+	cfg.Security.CSP.Policy = "default-src 'self'"
+
+	cfg.Discord.Enabled = true
+	cfg.Discord.ClientID = "client"
+	cfg.Discord.ClientSecret = "secret"
+	cfg.Discord.AuthorizeURL = "https://discord.com/oauth2/authorize"
+	cfg.Discord.TokenURL = "https://discord.com/api/v10/oauth2/token"
+	cfg.Discord.UserInfoURL = "https://discord.com/api/v10/users/@me"
+	cfg.Discord.RedirectURL = "https://example.com/api/v1/auth/oauth/discord/callback"
+	cfg.Discord.FrontendRedirectURL = "/auth/discord/callback"
+	cfg.Discord.TokenAuthMethod = "client_secret_post"
+
+	if err := cfg.Validate(); err != nil {
+		t.Fatalf("Validate() unexpected error: %v", err)
+	}
+}
+
 func TestValidateConfigWithLinuxDoEnabled(t *testing.T) {
 	resetViperWithJWTSecret(t)
 
@@ -934,6 +1010,29 @@ func TestValidateConfigErrors(t *testing.T) {
 				c.LinuxDo.TokenAuthMethod = "invalid"
 			},
 			wantErr: "linuxdo_connect.token_auth_method",
+		},
+		{
+			name: "discord client id required",
+			mutate: func(c *Config) {
+				c.Discord.Enabled = true
+				c.Discord.ClientID = ""
+			},
+			wantErr: "discord_connect.client_id",
+		},
+		{
+			name: "discord token auth method",
+			mutate: func(c *Config) {
+				c.Discord.Enabled = true
+				c.Discord.ClientID = "client"
+				c.Discord.ClientSecret = "secret"
+				c.Discord.AuthorizeURL = "https://discord.com/oauth2/authorize"
+				c.Discord.TokenURL = "https://discord.com/api/v10/oauth2/token"
+				c.Discord.UserInfoURL = "https://discord.com/api/v10/users/@me"
+				c.Discord.RedirectURL = "https://example.com/callback"
+				c.Discord.FrontendRedirectURL = "/auth/discord/callback"
+				c.Discord.TokenAuthMethod = "invalid"
+			},
+			wantErr: "discord_connect.token_auth_method",
 		},
 		{
 			name:    "billing circuit breaker threshold",

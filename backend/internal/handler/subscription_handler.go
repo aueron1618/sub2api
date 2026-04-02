@@ -42,8 +42,8 @@ func NewSubscriptionHandler(subscriptionService *service.SubscriptionService) *S
 	}
 }
 
-// List handles listing current user's subscriptions
-// GET /api/v1/subscriptions
+// List handles listing current user's quotas
+// GET /api/v1/quotas
 func (h *SubscriptionHandler) List(c *gin.Context) {
 	subject, ok := middleware2.GetAuthSubjectFromContext(c)
 	if !ok {
@@ -64,8 +64,8 @@ func (h *SubscriptionHandler) List(c *gin.Context) {
 	response.Success(c, out)
 }
 
-// GetActive handles getting current user's active subscriptions
-// GET /api/v1/subscriptions/active
+// GetActive handles getting current user's active quotas
+// GET /api/v1/quotas/active
 func (h *SubscriptionHandler) GetActive(c *gin.Context) {
 	subject, ok := middleware2.GetAuthSubjectFromContext(c)
 	if !ok {
@@ -86,8 +86,8 @@ func (h *SubscriptionHandler) GetActive(c *gin.Context) {
 	response.Success(c, out)
 }
 
-// GetProgress handles getting subscription progress for current user
-// GET /api/v1/subscriptions/progress
+// GetProgress handles getting quota progress for current user
+// GET /api/v1/quotas/progress
 func (h *SubscriptionHandler) GetProgress(c *gin.Context) {
 	subject, ok := middleware2.GetAuthSubjectFromContext(c)
 	if !ok {
@@ -119,8 +119,8 @@ func (h *SubscriptionHandler) GetProgress(c *gin.Context) {
 	response.Success(c, result)
 }
 
-// GetSummary handles getting a summary of current user's subscription status
-// GET /api/v1/subscriptions/summary
+// GetSummary handles getting a summary of current user's quota status
+// GET /api/v1/quotas/summary
 func (h *SubscriptionHandler) GetSummary(c *gin.Context) {
 	subject, ok := middleware2.GetAuthSubjectFromContext(c)
 	if !ok {
@@ -175,13 +175,13 @@ func (h *SubscriptionHandler) GetSummary(c *gin.Context) {
 	}
 
 	summary := struct {
-		ActiveCount   int                       `json:"active_count"`
-		TotalUsedUSD  float64                   `json:"total_used_usd"`
-		Subscriptions []SubscriptionSummaryItem `json:"subscriptions"`
+		ActiveCount  int                       `json:"active_count"`
+		TotalUsedUSD float64                   `json:"total_used_usd"`
+		Quotas       []SubscriptionSummaryItem `json:"quotas"`
 	}{
-		ActiveCount:   len(subscriptions),
-		TotalUsedUSD:  totalUsed,
-		Subscriptions: items,
+		ActiveCount:  len(subscriptions),
+		TotalUsedUSD: totalUsed,
+		Quotas:       items,
 	}
 
 	response.Success(c, summary)

@@ -11,8 +11,14 @@
         </p>
       </div>
 
-      <!-- LinuxDo Connect OAuth 登录 -->
-      <LinuxDoOAuthSection v-if="linuxdoOAuthEnabled && !backendModeEnabled" :disabled="isLoading" />
+      <!-- OAuth 登录 -->
+      <div
+        v-if="!backendModeEnabled && (linuxdoOAuthEnabled || discordOAuthEnabled)"
+        class="space-y-3"
+      >
+        <LinuxDoOAuthSection v-if="linuxdoOAuthEnabled" :disabled="isLoading" />
+        <DiscordOAuthSection v-if="discordOAuthEnabled" :disabled="isLoading" />
+      </div>
 
       <!-- Login Form -->
       <form @submit.prevent="handleLogin" class="space-y-5">
@@ -85,6 +91,30 @@
               {{ t('auth.forgotPassword') }}
             </router-link>
           </div>
+        </div>
+
+        <!-- Invitation Code Input (optional, controlled by admin setting) -->
+        <div v-if="loginInvitationCodeVisible">
+          <label for="invitation_code" class="input-label">
+            {{ t('auth.invitationCodeLabel') }}
+          </label>
+          <div class="relative">
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+              <Icon name="key" size="md" class="text-gray-400 dark:text-dark-500" />
+            </div>
+            <input
+              id="invitation_code"
+              v-model="formData.invitation_code"
+              type="text"
+              :disabled="isLoading"
+              class="input pl-11"
+              :class="{ 'input-error': errors.invitation_code }"
+              :placeholder="t('auth.invitationCodePlaceholder')"
+            />
+          </div>
+          <p v-if="errors.invitation_code" class="input-error-text">
+            {{ errors.invitation_code }}
+          </p>
         </div>
 
         <!-- Turnstile Widget -->
@@ -181,6 +211,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { AuthLayout } from '@/components/layout'
 import LinuxDoOAuthSection from '@/components/auth/LinuxDoOAuthSection.vue'
+import DiscordOAuthSection from '@/components/auth/DiscordOAuthSection.vue'
 import TotpLoginModal from '@/components/auth/TotpLoginModal.vue'
 import Icon from '@/components/icons/Icon.vue'
 import TurnstileWidget from '@/components/TurnstileWidget.vue'
@@ -206,8 +237,10 @@ const showPassword = ref<boolean>(false)
 const turnstileEnabled = ref<boolean>(false)
 const turnstileSiteKey = ref<string>('')
 const linuxdoOAuthEnabled = ref<boolean>(false)
+const discordOAuthEnabled = ref<boolean>(false)
 const backendModeEnabled = ref<boolean>(false)
 const passwordResetEnabled = ref<boolean>(false)
+const loginInvitationCodeVisible = ref<boolean>(false)
 
 // Turnstile
 const turnstileRef = ref<InstanceType<typeof TurnstileWidget> | null>(null)
@@ -221,13 +254,15 @@ const totpModalRef = ref<InstanceType<typeof TotpLoginModal> | null>(null)
 
 const formData = reactive({
   email: '',
-  password: ''
+  password: '',
+  invitation_code: ''
 })
 
 const errors = reactive({
   email: '',
   password: '',
-  turnstile: ''
+  turnstile: '',
+  invitation_code: ''
 })
 
 // ==================== Lifecycle ====================
@@ -246,8 +281,10 @@ onMounted(async () => {
     turnstileEnabled.value = settings.turnstile_enabled
     turnstileSiteKey.value = settings.turnstile_site_key || ''
     linuxdoOAuthEnabled.value = settings.linuxdo_oauth_enabled
+    discordOAuthEnabled.value = settings.discord_oauth_enabled
     backendModeEnabled.value = settings.backend_mode_enabled
     passwordResetEnabled.value = settings.password_reset_enabled
+    loginInvitationCodeVisible.value = settings.login_invitation_code_visible
   } catch (error) {
     console.error('Failed to load public settings:', error)
   }
@@ -277,6 +314,7 @@ function validateForm(): boolean {
   errors.email = ''
   errors.password = ''
   errors.turnstile = ''
+  errors.invitation_code = ''
 
   let isValid = true
 

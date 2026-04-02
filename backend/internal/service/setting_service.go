@@ -149,6 +149,7 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		SettingKeyPromoCodeEnabled,
 		SettingKeyPasswordResetEnabled,
 		SettingKeyInvitationCodeEnabled,
+		SettingKeyLoginInvitationCodeVisible,
 		SettingKeyTotpEnabled,
 		SettingKeyTurnstileEnabled,
 		SettingKeyTurnstileSiteKey,
@@ -166,6 +167,7 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		SettingKeyCustomMenuItems,
 		SettingKeyCustomEndpoints,
 		SettingKeyLinuxDoConnectEnabled,
+		SettingKeyDiscordConnectEnabled,
 		SettingKeyBackendModeEnabled,
 	}
 
@@ -179,6 +181,13 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		linuxDoEnabled = raw == "true"
 	} else {
 		linuxDoEnabled = s.cfg != nil && s.cfg.LinuxDo.Enabled
+	}
+
+	discordEnabled := false
+	if raw, ok := settings[SettingKeyDiscordConnectEnabled]; ok {
+		discordEnabled = raw == "true"
+	} else {
+		discordEnabled = s.cfg != nil && s.cfg.Discord.Enabled
 	}
 
 	// Password reset requires email verification to be enabled
@@ -195,6 +204,7 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		PromoCodeEnabled:                 settings[SettingKeyPromoCodeEnabled] != "false", // 默认启用
 		PasswordResetEnabled:             passwordResetEnabled,
 		InvitationCodeEnabled:            settings[SettingKeyInvitationCodeEnabled] == "true",
+		LoginInvitationCodeVisible:       settings[SettingKeyLoginInvitationCodeVisible] == "true",
 		TotpEnabled:                      settings[SettingKeyTotpEnabled] == "true",
 		TurnstileEnabled:                 settings[SettingKeyTurnstileEnabled] == "true",
 		TurnstileSiteKey:                 settings[SettingKeyTurnstileSiteKey],
@@ -212,6 +222,7 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		CustomMenuItems:                  settings[SettingKeyCustomMenuItems],
 		CustomEndpoints:                  settings[SettingKeyCustomEndpoints],
 		LinuxDoOAuthEnabled:              linuxDoEnabled,
+		DiscordOAuthEnabled:              discordEnabled,
 		BackendModeEnabled:               settings[SettingKeyBackendModeEnabled] == "true",
 	}, nil
 }
@@ -248,6 +259,7 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 		PromoCodeEnabled                 bool            `json:"promo_code_enabled"`
 		PasswordResetEnabled             bool            `json:"password_reset_enabled"`
 		InvitationCodeEnabled            bool            `json:"invitation_code_enabled"`
+		LoginInvitationCodeVisible       bool            `json:"login_invitation_code_visible"`
 		TotpEnabled                      bool            `json:"totp_enabled"`
 		TurnstileEnabled                 bool            `json:"turnstile_enabled"`
 		TurnstileSiteKey                 string          `json:"turnstile_site_key,omitempty"`
@@ -265,6 +277,7 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 		CustomMenuItems                  json.RawMessage `json:"custom_menu_items"`
 		CustomEndpoints                  json.RawMessage `json:"custom_endpoints"`
 		LinuxDoOAuthEnabled              bool            `json:"linuxdo_oauth_enabled"`
+		DiscordOAuthEnabled              bool            `json:"discord_oauth_enabled"`
 		BackendModeEnabled               bool            `json:"backend_mode_enabled"`
 		Version                          string          `json:"version,omitempty"`
 	}{
@@ -274,6 +287,7 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 		PromoCodeEnabled:                 settings.PromoCodeEnabled,
 		PasswordResetEnabled:             settings.PasswordResetEnabled,
 		InvitationCodeEnabled:            settings.InvitationCodeEnabled,
+		LoginInvitationCodeVisible:       settings.LoginInvitationCodeVisible,
 		TotpEnabled:                      settings.TotpEnabled,
 		TurnstileEnabled:                 settings.TurnstileEnabled,
 		TurnstileSiteKey:                 settings.TurnstileSiteKey,
@@ -291,6 +305,7 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 		CustomMenuItems:                  filterUserVisibleMenuItems(settings.CustomMenuItems),
 		CustomEndpoints:                  safeRawJSONArray(settings.CustomEndpoints),
 		LinuxDoOAuthEnabled:              settings.LinuxDoOAuthEnabled,
+		DiscordOAuthEnabled:              settings.DiscordOAuthEnabled,
 		BackendModeEnabled:               settings.BackendModeEnabled,
 		Version:                          s.version,
 	}, nil
@@ -443,6 +458,7 @@ func (s *SettingService) UpdateSettings(ctx context.Context, settings *SystemSet
 	updates[SettingKeyPasswordResetEnabled] = strconv.FormatBool(settings.PasswordResetEnabled)
 	updates[SettingKeyFrontendURL] = settings.FrontendURL
 	updates[SettingKeyInvitationCodeEnabled] = strconv.FormatBool(settings.InvitationCodeEnabled)
+	updates[SettingKeyLoginInvitationCodeVisible] = strconv.FormatBool(settings.LoginInvitationCodeVisible)
 	updates[SettingKeyTotpEnabled] = strconv.FormatBool(settings.TotpEnabled)
 
 	// 邮件服务设置（只有非空才更新密码）
@@ -470,6 +486,19 @@ func (s *SettingService) UpdateSettings(ctx context.Context, settings *SystemSet
 	if settings.LinuxDoConnectClientSecret != "" {
 		updates[SettingKeyLinuxDoConnectClientSecret] = settings.LinuxDoConnectClientSecret
 	}
+
+	// Discord OAuth 登录
+	updates[SettingKeyDiscordConnectEnabled] = strconv.FormatBool(settings.DiscordConnectEnabled)
+	updates[SettingKeyDiscordConnectClientID] = settings.DiscordConnectClientID
+	updates[SettingKeyDiscordConnectRedirectURL] = settings.DiscordConnectRedirectURL
+	if settings.DiscordConnectClientSecret != "" {
+		updates[SettingKeyDiscordConnectClientSecret] = settings.DiscordConnectClientSecret
+	}
+
+	// Discord Guild/Role 校验
+	updates[SettingKeyDiscordGuildVerifyEnabled] = strconv.FormatBool(settings.DiscordGuildVerifyEnabled)
+	updates[SettingKeyDiscordRequiredGuildID] = settings.DiscordRequiredGuildID
+	updates[SettingKeyDiscordRequiredRoleIDs] = settings.DiscordRequiredRoleIDs
 
 	// OEM设置
 	updates[SettingKeySiteName] = settings.SiteName
@@ -876,6 +905,7 @@ func (s *SettingService) parseSettings(settings map[string]string) *SystemSettin
 		PasswordResetEnabled:             emailVerifyEnabled && settings[SettingKeyPasswordResetEnabled] == "true",
 		FrontendURL:                      settings[SettingKeyFrontendURL],
 		InvitationCodeEnabled:            settings[SettingKeyInvitationCodeEnabled] == "true",
+		LoginInvitationCodeVisible:       settings[SettingKeyLoginInvitationCodeVisible] == "true",
 		TotpEnabled:                      settings[SettingKeyTotpEnabled] == "true",
 		SMTPHost:                         settings[SettingKeySMTPHost],
 		SMTPUsername:                     settings[SettingKeySMTPUsername],
@@ -958,6 +988,55 @@ func (s *SettingService) parseSettings(settings map[string]string) *SystemSettin
 		result.LinuxDoConnectClientSecret = strings.TrimSpace(linuxDoBase.ClientSecret)
 	}
 	result.LinuxDoConnectClientSecretConfigured = result.LinuxDoConnectClientSecret != ""
+
+	// Discord OAuth 设置：
+	// - 兼容 config.yaml/env（避免老部署因为未迁移到数据库设置而被意外关闭）
+	// - 支持在后台“系统设置”中覆盖并持久化（存储于 DB）
+	discordBase := config.DiscordConnectConfig{}
+	if s.cfg != nil {
+		discordBase = s.cfg.Discord
+	}
+
+	if raw, ok := settings[SettingKeyDiscordConnectEnabled]; ok {
+		result.DiscordConnectEnabled = raw == "true"
+	} else {
+		result.DiscordConnectEnabled = discordBase.Enabled
+	}
+
+	if v, ok := settings[SettingKeyDiscordConnectClientID]; ok && strings.TrimSpace(v) != "" {
+		result.DiscordConnectClientID = strings.TrimSpace(v)
+	} else {
+		result.DiscordConnectClientID = discordBase.ClientID
+	}
+
+	if v, ok := settings[SettingKeyDiscordConnectRedirectURL]; ok && strings.TrimSpace(v) != "" {
+		result.DiscordConnectRedirectURL = strings.TrimSpace(v)
+	} else {
+		result.DiscordConnectRedirectURL = discordBase.RedirectURL
+	}
+
+	result.DiscordConnectClientSecret = strings.TrimSpace(settings[SettingKeyDiscordConnectClientSecret])
+	if result.DiscordConnectClientSecret == "" {
+		result.DiscordConnectClientSecret = strings.TrimSpace(discordBase.ClientSecret)
+	}
+	result.DiscordConnectClientSecretConfigured = result.DiscordConnectClientSecret != ""
+
+	// Discord Guild/Role 校验设置
+	if raw, ok := settings[SettingKeyDiscordGuildVerifyEnabled]; ok {
+		result.DiscordGuildVerifyEnabled = raw == "true"
+	} else {
+		result.DiscordGuildVerifyEnabled = discordBase.GuildVerifyEnabled
+	}
+	if v, ok := settings[SettingKeyDiscordRequiredGuildID]; ok {
+		result.DiscordRequiredGuildID = strings.TrimSpace(v)
+	} else {
+		result.DiscordRequiredGuildID = discordBase.RequiredGuildID
+	}
+	if v, ok := settings[SettingKeyDiscordRequiredRoleIDs]; ok {
+		result.DiscordRequiredRoleIDs = strings.TrimSpace(v)
+	} else {
+		result.DiscordRequiredRoleIDs = discordBase.RequiredRoleIDs
+	}
 
 	// Model fallback settings
 	result.EnableModelFallback = settings[SettingKeyEnableModelFallback] == "true"
@@ -1184,6 +1263,111 @@ func (s *SettingService) GetFallbackModel(ctx context.Context, platform string) 
 		return defaultModel
 	}
 	return value
+}
+
+// GetDiscordConnectOAuthConfig 返回用于登录的"最终生效" Discord OAuth 配置。
+//
+// 优先级：
+// - 若对应系统设置键存在，则覆盖 config.yaml/env 的值
+// - 否则回退到 config.yaml/env 的值
+func (s *SettingService) GetDiscordConnectOAuthConfig(ctx context.Context) (config.DiscordConnectConfig, error) {
+	if s == nil || s.cfg == nil {
+		return config.DiscordConnectConfig{}, infraerrors.ServiceUnavailable("CONFIG_NOT_READY", "config not loaded")
+	}
+
+	effective := s.cfg.Discord
+
+	keys := []string{
+		SettingKeyDiscordConnectEnabled,
+		SettingKeyDiscordConnectClientID,
+		SettingKeyDiscordConnectClientSecret,
+		SettingKeyDiscordConnectRedirectURL,
+		SettingKeyDiscordGuildVerifyEnabled,
+		SettingKeyDiscordRequiredGuildID,
+		SettingKeyDiscordRequiredRoleIDs,
+	}
+	settings, err := s.settingRepo.GetMultiple(ctx, keys)
+	if err != nil {
+		return config.DiscordConnectConfig{}, fmt.Errorf("get discord connect settings: %w", err)
+	}
+
+	if raw, ok := settings[SettingKeyDiscordConnectEnabled]; ok {
+		effective.Enabled = raw == "true"
+	}
+	if v, ok := settings[SettingKeyDiscordConnectClientID]; ok && strings.TrimSpace(v) != "" {
+		effective.ClientID = strings.TrimSpace(v)
+	}
+	if v, ok := settings[SettingKeyDiscordConnectClientSecret]; ok && strings.TrimSpace(v) != "" {
+		effective.ClientSecret = strings.TrimSpace(v)
+	}
+	if v, ok := settings[SettingKeyDiscordConnectRedirectURL]; ok && strings.TrimSpace(v) != "" {
+		effective.RedirectURL = strings.TrimSpace(v)
+	}
+	if raw, ok := settings[SettingKeyDiscordGuildVerifyEnabled]; ok {
+		effective.GuildVerifyEnabled = raw == "true"
+	}
+	if v, ok := settings[SettingKeyDiscordRequiredGuildID]; ok {
+		effective.RequiredGuildID = strings.TrimSpace(v)
+	}
+	if v, ok := settings[SettingKeyDiscordRequiredRoleIDs]; ok {
+		effective.RequiredRoleIDs = strings.TrimSpace(v)
+	}
+
+	if !effective.Enabled {
+		return config.DiscordConnectConfig{}, infraerrors.NotFound("OAUTH_DISABLED", "oauth login is disabled")
+	}
+
+	// 基础健壮性校验（避免把用户重定向到一个必然失败或不安全的 OAuth 流程里）。
+	if strings.TrimSpace(effective.ClientID) == "" {
+		return config.DiscordConnectConfig{}, infraerrors.InternalServer("OAUTH_CONFIG_INVALID", "oauth client id not configured")
+	}
+	if strings.TrimSpace(effective.AuthorizeURL) == "" {
+		return config.DiscordConnectConfig{}, infraerrors.InternalServer("OAUTH_CONFIG_INVALID", "oauth authorize url not configured")
+	}
+	if strings.TrimSpace(effective.TokenURL) == "" {
+		return config.DiscordConnectConfig{}, infraerrors.InternalServer("OAUTH_CONFIG_INVALID", "oauth token url not configured")
+	}
+	if strings.TrimSpace(effective.UserInfoURL) == "" {
+		return config.DiscordConnectConfig{}, infraerrors.InternalServer("OAUTH_CONFIG_INVALID", "oauth userinfo url not configured")
+	}
+	if strings.TrimSpace(effective.RedirectURL) == "" {
+		return config.DiscordConnectConfig{}, infraerrors.InternalServer("OAUTH_CONFIG_INVALID", "oauth redirect url not configured")
+	}
+	if strings.TrimSpace(effective.FrontendRedirectURL) == "" {
+		return config.DiscordConnectConfig{}, infraerrors.InternalServer("OAUTH_CONFIG_INVALID", "oauth frontend redirect url not configured")
+	}
+
+	if err := config.ValidateAbsoluteHTTPURL(effective.AuthorizeURL); err != nil {
+		return config.DiscordConnectConfig{}, infraerrors.InternalServer("OAUTH_CONFIG_INVALID", "oauth authorize url invalid")
+	}
+	if err := config.ValidateAbsoluteHTTPURL(effective.TokenURL); err != nil {
+		return config.DiscordConnectConfig{}, infraerrors.InternalServer("OAUTH_CONFIG_INVALID", "oauth token url invalid")
+	}
+	if err := config.ValidateAbsoluteHTTPURL(effective.UserInfoURL); err != nil {
+		return config.DiscordConnectConfig{}, infraerrors.InternalServer("OAUTH_CONFIG_INVALID", "oauth userinfo url invalid")
+	}
+	if err := config.ValidateAbsoluteHTTPURL(effective.RedirectURL); err != nil {
+		return config.DiscordConnectConfig{}, infraerrors.InternalServer("OAUTH_CONFIG_INVALID", "oauth redirect url invalid")
+	}
+	if err := config.ValidateFrontendRedirectURL(effective.FrontendRedirectURL); err != nil {
+		return config.DiscordConnectConfig{}, infraerrors.InternalServer("OAUTH_CONFIG_INVALID", "oauth frontend redirect url invalid")
+	}
+
+	method := strings.ToLower(strings.TrimSpace(effective.TokenAuthMethod))
+	switch method {
+	case "", "client_secret_post", "client_secret_basic":
+		if strings.TrimSpace(effective.ClientSecret) == "" {
+			return config.DiscordConnectConfig{}, infraerrors.InternalServer("OAUTH_CONFIG_INVALID", "oauth client secret not configured")
+		}
+	case "none":
+		if !effective.UsePKCE {
+			return config.DiscordConnectConfig{}, infraerrors.InternalServer("OAUTH_CONFIG_INVALID", "oauth pkce must be enabled when token_auth_method=none")
+		}
+	default:
+		return config.DiscordConnectConfig{}, infraerrors.InternalServer("OAUTH_CONFIG_INVALID", "oauth token_auth_method invalid")
+	}
+
+	return effective, nil
 }
 
 // GetLinuxDoConnectOAuthConfig 返回用于登录的"最终生效" LinuxDo Connect 配置。

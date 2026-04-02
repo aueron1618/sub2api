@@ -335,7 +335,7 @@ export default {
     profile: 'Profile',
     users: 'Users',
     groups: 'Groups',
-    subscriptions: 'Subscriptions',
+    subscriptions: 'Quota Center',
     accounts: 'Accounts',
     proxies: 'Proxies',
     redeemCodes: 'Redeem Codes',
@@ -349,8 +349,8 @@ export default {
     expand: 'Expand',
     logout: 'Logout',
     github: 'GitHub',
-    mySubscriptions: 'My Subscriptions',
-    buySubscription: 'Recharge / Subscription',
+    mySubscriptions: 'My Quotas',
+    buySubscription: 'Top up / Buy Quota',
     docs: 'Docs',
     sora: 'Sora Studio'
   },
@@ -437,6 +437,19 @@ export default {
       backToLogin: 'Back to Login',
       invitationRequired: 'This Linux.do account is not yet registered. The site requires an invitation code — please enter one to complete registration.',
       invalidPendingToken: 'The registration token has expired. Please sign in with Linux.do again.',
+      completeRegistration: 'Complete Registration',
+      completing: 'Completing registration…',
+      completeRegistrationFailed: 'Registration failed. Please check your invitation code and try again.'
+    },
+    discord: {
+      signIn: 'Continue with Discord',
+      callbackTitle: 'Signing you in',
+      callbackProcessing: 'Completing Discord login, please wait...',
+      callbackHint: 'If you are not redirected automatically, go back to the login page and try again.',
+      callbackMissingToken: 'Missing login token, please try again.',
+      backToLogin: 'Back to Login',
+      invitationRequired: 'This Discord account is not yet registered. The site requires an invitation code — please enter one to complete registration.',
+      invalidPendingToken: 'The registration token has expired. Please sign in with Discord again.',
       completeRegistration: 'Complete Registration',
       completing: 'Completing registration…',
       completeRegistrationFailed: 'Registration failed. Please check your invitation code and try again.'
@@ -1377,7 +1390,7 @@ export default {
       deleteConfirm: "Are you sure you want to delete '{email}'? This action cannot be undone.",
       setAllowedGroups: 'Set Allowed Groups',
       allowedGroupsHint:
-        'Select which standard groups this user can use. Subscription groups are managed separately.',
+        'Select which standard groups this user can use. Subscription groups are configured in Quota Center.',
       noStandardGroups: 'No standard groups available',
       allowAllGroups: 'Allow All Groups',
       allowAllGroupsHint: 'User can use any non-exclusive group',
@@ -1719,13 +1732,13 @@ export default {
       }
     },
 
-    // Subscriptions
+    // Quota Center
     subscriptions: {
-      title: 'Subscription Management',
-      description: 'Manage user subscriptions and quota limits',
-      assignSubscription: 'Assign Subscription',
-      adjustSubscription: 'Adjust Subscription',
-      revokeSubscription: 'Revoke Subscription',
+      title: 'Quota Center',
+      description: 'Manage user quota access and usage limits',
+      assignSubscription: 'Assign Quota',
+      adjustSubscription: 'Adjust Quota',
+      revokeSubscription: 'Revoke Quota',
       allStatus: 'All Status',
       allGroups: 'All Groups',
       allPlatforms: 'All Platforms',
@@ -1757,18 +1770,18 @@ export default {
       },
       form: {
         user: 'User',
-        group: 'Subscription Group',
+        group: 'Quota Group',
         validityDays: 'Validity (Days)',
         adjustDays: 'Adjust by (Days)'
       },
       selectUser: 'Select a user',
-      selectGroup: 'Select a subscription group',
+      selectGroup: 'Select a quota group',
       groupHint: 'Only groups with subscription billing type are shown',
-      validityHint: 'Number of days the subscription will be valid',
-      adjustingFor: 'Adjusting subscription for',
+      validityHint: 'Number of days the quota access will remain valid',
+      adjustingFor: 'Adjusting quota for',
       currentExpiration: 'Current expiration',
       adjustDaysPlaceholder: 'Positive to extend, negative to shorten',
-      adjustHint: 'Enter positive number to extend, negative to shorten (remaining days must be > 0)',
+      adjustHint: 'Enter positive number to extend, negative to shorten quota validity (remaining days must be > 0)',
       assign: 'Assign',
       assigning: 'Assigning...',
       adjust: 'Adjust',
@@ -1779,49 +1792,49 @@ export default {
       resetQuotaConfirm: "Reset the daily, weekly, and monthly usage quota for '{user}'? Usage will be zeroed and windows restarted from today.",
       quotaResetSuccess: 'Quota reset successfully',
       failedToResetQuota: 'Failed to reset quota',
-      noSubscriptionsYet: 'No subscriptions yet',
-      assignFirstSubscription: 'Assign a subscription to get started.',
-      subscriptionAssigned: 'Subscription assigned successfully',
-      subscriptionAdjusted: 'Subscription adjusted successfully',
-      subscriptionRevoked: 'Subscription revoked successfully',
-      failedToLoad: 'Failed to load subscriptions',
-      failedToAssign: 'Failed to assign subscription',
-      failedToAdjust: 'Failed to adjust subscription',
-      failedToRevoke: 'Failed to revoke subscription',
+      noSubscriptionsYet: 'No quotas yet',
+      assignFirstSubscription: 'Assign a quota to get started.',
+      subscriptionAssigned: 'Quota assigned successfully',
+      subscriptionAdjusted: 'Quota adjusted successfully',
+      subscriptionRevoked: 'Quota revoked successfully',
+      failedToLoad: 'Failed to load quotas',
+      failedToAssign: 'Failed to assign quota',
+      failedToAdjust: 'Failed to adjust quota',
+      failedToRevoke: 'Failed to revoke quota',
       adjustWouldExpire: 'Remaining days after adjustment must be greater than 0',
       adjustOutOfRange: 'Adjustment days must be between -36500 and 36500',
       pleaseSelectUser: 'Please select a user',
       pleaseSelectGroup: 'Please select a group',
       validityDaysRequired: 'Please enter a valid number of days (at least 1)',
       revokeConfirm:
-        "Are you sure you want to revoke the subscription for '{user}'? This action cannot be undone.",
+        "Are you sure you want to revoke the quota for '{user}'? This action cannot be undone.",
       guide: {
-        title: 'Subscription Management Guide',
-        subtitle: 'Subscription mode lets you assign time-based usage quotas to users, with daily/weekly/monthly limits. Follow these steps to get started.',
+        title: 'Quota Center Guide',
+        subtitle: 'Quota Center lets you assign time-based usage quotas to users, with daily/weekly/monthly limits. Follow these steps to get started.',
         showGuide: 'Usage Guide',
         step1: {
-          title: 'Create a Subscription Group',
+          title: 'Create a Quota Group',
           line1: 'Go to "Group Management" page, click "Create Group"',
           line2: 'Set billing type to "Subscription", configure daily/weekly/monthly quota limits',
           line3: 'Save the group and ensure its status is "Active"',
           link: 'Go to Group Management'
         },
         step2: {
-          title: 'Assign Subscription to User',
-          line1: 'Click the "Assign Subscription" button in the top right',
+          title: 'Assign Quota to User',
+          line1: 'Click the "Assign Quota" button in the top right',
           line2: 'Search for a user by email and select them',
-          line3: 'Choose a subscription group, set validity days, then click "Assign"'
+          line3: 'Choose a quota group, set validity days, then click "Assign"'
         },
         step3: {
-          title: 'Manage Existing Subscriptions'
+          title: 'Manage Existing Quotas'
         },
         actions: {
           adjust: 'Adjust',
-          adjustDesc: 'Extend or shorten the subscription validity period',
+          adjustDesc: 'Extend or shorten the quota validity period',
           resetQuota: 'Reset Quota',
           resetQuotaDesc: 'Reset daily/weekly/monthly usage to zero',
           revoke: 'Revoke',
-          revokeDesc: 'Immediately terminate the subscription (irreversible)'
+          revokeDesc: 'Immediately terminate the quota access (irreversible)'
         },
         tip: 'Tip: Only groups with billing type "Subscription" and status "Active" appear in the group dropdown. If no options are available, create one in Group Management first.'
       }
@@ -4107,6 +4120,8 @@ export default {
         promoCodeHint: 'Allow users to use promo codes during registration',
         invitationCode: 'Invitation Code Registration',
         invitationCodeHint: 'When enabled, users must enter a valid invitation code to register',
+        loginInvitationCode: 'Login Page Invitation Code',
+        loginInvitationCodeHint: 'When enabled, the login page will display an invitation code input field',
         passwordReset: 'Password Reset',
         passwordResetHint: 'Allow users to reset their password via email',
         frontendUrl: 'Frontend URL',
@@ -4147,6 +4162,33 @@ export default {
           'Must match the redirect URL configured in Connect.Linux.Do (must be an absolute http(s) URL)',
         quickSetCopy: 'Generate & Copy (current site)',
         redirectUrlSetAndCopied: 'Redirect URL generated and copied to clipboard'
+      },
+      discord: {
+        title: 'Discord Login',
+        description: 'Configure Discord OAuth for Sub2API end-user login',
+        enable: 'Enable Discord Login',
+        enableHint: 'Show Discord login on the login/register pages',
+        clientId: 'Client ID',
+        clientIdPlaceholder: 'e.g., 123456789012345678',
+        clientIdHint: 'Get this from Discord Developer Portal',
+        clientSecret: 'Client Secret',
+        clientSecretPlaceholder: '********',
+        clientSecretHint: 'Used by backend to exchange tokens (keep it secret)',
+        clientSecretConfiguredPlaceholder: '********',
+        clientSecretConfiguredHint: 'Secret configured. Leave empty to keep the current value.',
+        redirectUrl: 'Redirect URL',
+        redirectUrlPlaceholder: 'https://your-domain.com/api/v1/auth/oauth/discord/callback',
+        redirectUrlHint: 'Must match the redirect URL configured in Discord (must be an absolute http(s) URL)',
+        quickSetCopy: 'Generate & Copy (current site)',
+        redirectUrlSetAndCopied: 'Redirect URL generated and copied to clipboard',
+        guildVerify: 'Server / Role Verification',
+        guildVerifyHint: 'When enabled, users must join the specified Discord server and hold a required role to login/register',
+        requiredGuildId: 'Server ID (Guild ID)',
+        requiredGuildIdPlaceholder: 'e.g., 123456789012345678',
+        requiredGuildIdHint: 'Users must be a member of this Discord server. Required when verification is enabled.',
+        requiredRoleIds: 'Role IDs',
+        requiredRoleIdsPlaceholder: 'e.g., 111222333,444555666',
+        requiredRoleIdsHint: 'Comma-separated. User needs at least one of these roles. Leave empty to only check server membership.'
       },
       defaults: {
         title: 'Default User Settings',
@@ -4239,11 +4281,11 @@ export default {
         hideCcsImportButtonHint: 'When enabled, the "Import to CCS" button will be hidden on the API Keys page'
       },
       purchase: {
-        title: 'Recharge / Subscription Page',
-        description: 'Show a "Recharge / Subscription" entry in the sidebar and open the configured URL in an iframe',
-        enabled: 'Show Recharge / Subscription Entry',
+        title: 'Top up / Buy Quota Page',
+        description: 'Show a "Top up / Buy Quota" entry in the sidebar and open the configured URL in an iframe',
+        enabled: 'Show Top up / Buy Quota Entry',
         enabledHint: 'Only shown in standard mode (not simple mode)',
-        url: 'Recharge / Subscription URL',
+        url: 'Top up / Buy Quota URL',
         urlPlaceholder: 'https://example.com/purchase',
         urlHint: 'Must be an absolute http(s) URL',
         iframeWarning:
@@ -4657,9 +4699,9 @@ export default {
 
   // Subscription Progress (Header component)
   subscriptionProgress: {
-    title: 'My Subscriptions',
-    viewDetails: 'View subscription details',
-    activeCount: '{count} active subscription(s)',
+    title: 'My Quotas',
+    viewDetails: 'View quota details',
+    activeCount: '{count} active quota(s)',
     daily: 'Daily',
     weekly: 'Weekly',
     monthly: 'Monthly',
@@ -4667,8 +4709,8 @@ export default {
     expired: 'Expired',
     expiresToday: 'Expires today',
     expiresTomorrow: 'Expires tomorrow',
-    viewAll: 'View all subscriptions',
-    noSubscriptions: 'No active subscriptions',
+    viewAll: 'View all quotas',
+    noSubscriptions: 'No active quotas',
     unlimited: 'Unlimited'
   },
 
@@ -4698,14 +4740,14 @@ export default {
 
   // Recharge / Subscription Page
   purchase: {
-    title: 'Recharge / Subscription',
-    description: 'Recharge balance or purchase subscription via the embedded page',
+    title: 'Top up / Buy Quota',
+    description: 'Top up balance or buy quota via the embedded page',
     openInNewTab: 'Open in new tab',
     notEnabledTitle: 'Feature not enabled',
-    notEnabledDesc: 'The administrator has not enabled the recharge/subscription entry. Please contact admin.',
-    notConfiguredTitle: 'Recharge / Subscription URL not configured',
+    notEnabledDesc: 'The administrator has not enabled the top up / buy quota entry. Please contact admin.',
+    notConfiguredTitle: 'Top up / Buy Quota URL not configured',
     notConfiguredDesc:
-      'The administrator enabled the entry but has not configured a recharge/subscription URL. Please contact admin.'
+      'The administrator enabled the entry but has not configured a top up / buy quota URL. Please contact admin.'
   },
 
   // Custom Page (iframe embed)
@@ -4744,12 +4786,12 @@ export default {
 
   // User Subscriptions Page
   userSubscriptions: {
-    title: 'My Subscriptions',
-    description: 'View your subscription plans and usage',
-    noActiveSubscriptions: 'No Active Subscriptions',
+    title: 'My Quotas',
+    description: 'View your quota plans and usage',
+    noActiveSubscriptions: 'No Active Quotas',
     noActiveSubscriptionsDesc:
-      "You don't have any active subscriptions. Contact administrator to get one.",
-    failedToLoad: 'Failed to load subscriptions',
+      "You don't have any active quotas. Contact administrator to get one.",
+    failedToLoad: 'Failed to load quotas',
     status: {
       active: 'Active',
       expired: 'Expired',
@@ -4759,7 +4801,7 @@ export default {
     expires: 'Expires',
     noExpiration: 'No expiration',
     unlimited: 'Unlimited',
-    unlimitedDesc: 'No usage limits on this subscription',
+    unlimitedDesc: 'No usage limits on this quota',
     daily: 'Daily',
     weekly: 'Weekly',
     monthly: 'Monthly',

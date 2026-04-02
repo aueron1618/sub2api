@@ -268,7 +268,7 @@ func (h *SubscriptionHandler) Revoke(c *gin.Context) {
 }
 
 // ListByGroup handles listing subscriptions for a specific group
-// GET /api/v1/admin/groups/:id/subscriptions
+// GET /api/v1/admin/groups/:id/quotas
 func (h *SubscriptionHandler) ListByGroup(c *gin.Context) {
 	groupID, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {

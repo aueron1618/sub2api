@@ -998,7 +998,7 @@ const loadSubscriptions = async () => {
 
   loading.value = true
   try {
-    const response = await adminAPI.subscriptions.list(
+    const response = await adminAPI.quotas.list(
       pagination.page,
       pagination.page_size,
       {
@@ -1183,7 +1183,7 @@ const handleAssignSubscription = async () => {
 
   submitting.value = true
   try {
-    await adminAPI.subscriptions.assign({
+    await adminAPI.quotas.assign({
       user_id: assignForm.user_id,
       group_id: assignForm.group_id,
       validity_days: assignForm.validity_days
@@ -1225,7 +1225,7 @@ const handleExtendSubscription = async () => {
 
   submitting.value = true
   try {
-    await adminAPI.subscriptions.extend(extendingSubscription.value.id, {
+    await adminAPI.quotas.extend(extendingSubscription.value.id, {
       days: extendForm.days
     })
     appStore.showSuccess(t('admin.subscriptions.subscriptionAdjusted'))
@@ -1248,7 +1248,7 @@ const confirmRevoke = async () => {
   if (!revokingSubscription.value) return
 
   try {
-    await adminAPI.subscriptions.revoke(revokingSubscription.value.id)
+    await adminAPI.quotas.revoke(revokingSubscription.value.id)
     appStore.showSuccess(t('admin.subscriptions.subscriptionRevoked'))
     showRevokeDialog.value = false
     revokingSubscription.value = null
@@ -1269,7 +1269,7 @@ const confirmResetQuota = async () => {
   if (resettingQuota.value) return
   resettingQuota.value = true
   try {
-    await adminAPI.subscriptions.resetQuota(resettingSubscription.value.id, { daily: true, weekly: true, monthly: true })
+    await adminAPI.quotas.resetQuota(resettingSubscription.value.id, { daily: true, weekly: true, monthly: true })
     appStore.showSuccess(t('admin.subscriptions.quotaResetSuccess'))
     showResetQuotaConfirm.value = false
     resettingSubscription.value = null

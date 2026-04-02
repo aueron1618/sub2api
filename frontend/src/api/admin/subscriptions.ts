@@ -1,6 +1,6 @@
 /**
- * Admin Subscriptions API endpoints
- * Handles user subscription management for administrators
+ * Admin Quota API endpoints
+ * Handles user quota management for administrators
  */
 
 import { apiClient } from '../client'
@@ -14,11 +14,11 @@ import type {
 } from '@/types'
 
 /**
- * List all subscriptions with pagination
+ * List all quotas with pagination
  * @param page - Page number (default: 1)
  * @param pageSize - Items per page (default: 20)
  * @param filters - Optional filters (status, user_id, group_id, sort_by, sort_order)
- * @returns Paginated list of subscriptions
+ * @returns Paginated list of quotas
  */
 export async function list(
   page: number = 1,
@@ -36,7 +36,7 @@ export async function list(
   }
 ): Promise<PaginatedResponse<UserSubscription>> {
   const { data } = await apiClient.get<PaginatedResponse<UserSubscription>>(
-    '/admin/subscriptions',
+    '/admin/quotas',
     {
       params: {
         page,
@@ -50,100 +50,100 @@ export async function list(
 }
 
 /**
- * Get subscription by ID
- * @param id - Subscription ID
- * @returns Subscription details
+ * Get quota by ID
+ * @param id - Quota ID
+ * @returns Quota details
  */
 export async function getById(id: number): Promise<UserSubscription> {
-  const { data } = await apiClient.get<UserSubscription>(`/admin/subscriptions/${id}`)
+  const { data } = await apiClient.get<UserSubscription>(`/admin/quotas/${id}`)
   return data
 }
 
 /**
- * Get subscription progress
- * @param id - Subscription ID
- * @returns Subscription progress with usage stats
+ * Get quota progress
+ * @param id - Quota ID
+ * @returns Quota progress with usage stats
  */
 export async function getProgress(id: number): Promise<SubscriptionProgress> {
-  const { data } = await apiClient.get<SubscriptionProgress>(`/admin/subscriptions/${id}/progress`)
+  const { data } = await apiClient.get<SubscriptionProgress>(`/admin/quotas/${id}/progress`)
   return data
 }
 
 /**
- * Assign subscription to user
+ * Assign quota to user
  * @param request - Assignment request
- * @returns Created subscription
+ * @returns Created quota
  */
 export async function assign(request: AssignSubscriptionRequest): Promise<UserSubscription> {
-  const { data } = await apiClient.post<UserSubscription>('/admin/subscriptions/assign', request)
+  const { data } = await apiClient.post<UserSubscription>('/admin/quotas/assign', request)
   return data
 }
 
 /**
- * Bulk assign subscriptions to multiple users
+ * Bulk assign quotas to multiple users
  * @param request - Bulk assignment request
- * @returns Created subscriptions
+ * @returns Created quotas
  */
 export async function bulkAssign(
   request: BulkAssignSubscriptionRequest
 ): Promise<UserSubscription[]> {
   const { data } = await apiClient.post<UserSubscription[]>(
-    '/admin/subscriptions/bulk-assign',
+    '/admin/quotas/bulk-assign',
     request
   )
   return data
 }
 
 /**
- * Extend subscription validity
- * @param id - Subscription ID
+ * Extend quota validity
+ * @param id - Quota ID
  * @param request - Extension request with days
- * @returns Updated subscription
+ * @returns Updated quota
  */
 export async function extend(
   id: number,
   request: ExtendSubscriptionRequest
 ): Promise<UserSubscription> {
   const { data } = await apiClient.post<UserSubscription>(
-    `/admin/subscriptions/${id}/extend`,
+    `/admin/quotas/${id}/extend`,
     request
   )
   return data
 }
 
 /**
- * Revoke subscription
- * @param id - Subscription ID
+ * Revoke quota
+ * @param id - Quota ID
  * @returns Success confirmation
  */
 export async function revoke(id: number): Promise<{ message: string }> {
-  const { data } = await apiClient.delete<{ message: string }>(`/admin/subscriptions/${id}`)
+  const { data } = await apiClient.delete<{ message: string }>(`/admin/quotas/${id}`)
   return data
 }
 
 /**
- * Reset daily, weekly, and/or monthly usage quota for a subscription
- * @param id - Subscription ID
- * @param options - Which windows to reset
- * @returns Updated subscription
+ * Reset daily, weekly, and/or monthly usage quota for a quota record
+ * @param id - Quota ID
+ * @param options - Which windows reset
+ * @returns Updated quota
  */
 export async function resetQuota(
   id: number,
   options: { daily: boolean; weekly: boolean; monthly: boolean }
 ): Promise<UserSubscription> {
   const { data } = await apiClient.post<UserSubscription>(
-    `/admin/subscriptions/${id}/reset-quota`,
+    `/admin/quotas/${id}/reset-quota`,
     options
   )
   return data
 }
 
 /**
- * List subscriptions by group
+ * List quotas by group
  * @param groupId - Group ID
  * @param page - Page number
  * @param pageSize - Items per page
- * @returns Paginated list of subscriptions in the group
+ * @returns Paginated list of quotas in the group
  */
 export async function listByGroup(
   groupId: number,
@@ -151,7 +151,7 @@ export async function listByGroup(
   pageSize: number = 20
 ): Promise<PaginatedResponse<UserSubscription>> {
   const { data } = await apiClient.get<PaginatedResponse<UserSubscription>>(
-    `/admin/groups/${groupId}/subscriptions`,
+    `/admin/groups/${groupId}/quotas`,
     {
       params: { page, page_size: pageSize }
     }
@@ -160,11 +160,11 @@ export async function listByGroup(
 }
 
 /**
- * List subscriptions by user
+ * List quotas by user
  * @param userId - User ID
  * @param page - Page number
  * @param pageSize - Items per page
- * @returns Paginated list of user's subscriptions
+ * @returns Paginated list of user's quotas
  */
 export async function listByUser(
   userId: number,
@@ -172,7 +172,7 @@ export async function listByUser(
   pageSize: number = 20
 ): Promise<PaginatedResponse<UserSubscription>> {
   const { data } = await apiClient.get<PaginatedResponse<UserSubscription>>(
-    `/admin/users/${userId}/subscriptions`,
+    `/admin/users/${userId}/quotas`,
     {
       params: { page, page_size: pageSize }
     }
@@ -180,7 +180,7 @@ export async function listByUser(
   return data
 }
 
-export const subscriptionsAPI = {
+export const quotasAPI = {
   list,
   getById,
   getProgress,
@@ -193,4 +193,4 @@ export const subscriptionsAPI = {
   listByUser
 }
 
-export default subscriptionsAPI
+export default quotasAPI

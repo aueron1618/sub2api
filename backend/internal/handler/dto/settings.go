@@ -31,6 +31,7 @@ type SystemSettings struct {
 	PasswordResetEnabled             bool     `json:"password_reset_enabled"`
 	FrontendURL                      string   `json:"frontend_url"`
 	InvitationCodeEnabled            bool     `json:"invitation_code_enabled"`
+	LoginInvitationCodeVisible       bool     `json:"login_invitation_code_visible"`
 	TotpEnabled                      bool     `json:"totp_enabled"`                   // TOTP 双因素认证
 	TotpEncryptionKeyConfigured      bool     `json:"totp_encryption_key_configured"` // TOTP 加密密钥是否已配置
 
@@ -50,6 +51,14 @@ type SystemSettings struct {
 	LinuxDoConnectClientID               string `json:"linuxdo_connect_client_id"`
 	LinuxDoConnectClientSecretConfigured bool   `json:"linuxdo_connect_client_secret_configured"`
 	LinuxDoConnectRedirectURL            string `json:"linuxdo_connect_redirect_url"`
+
+	DiscordConnectEnabled                bool   `json:"discord_connect_enabled"`
+	DiscordConnectClientID               string `json:"discord_connect_client_id"`
+	DiscordConnectClientSecretConfigured bool   `json:"discord_connect_client_secret_configured"`
+	DiscordConnectRedirectURL            string `json:"discord_connect_redirect_url"`
+	DiscordGuildVerifyEnabled            bool   `json:"discord_guild_verify_enabled"`
+	DiscordRequiredGuildID               string `json:"discord_required_guild_id"`
+	DiscordRequiredRoleIDs               string `json:"discord_required_role_ids"`
 
 	SiteName                    string           `json:"site_name"`
 	SiteLogo                    string           `json:"site_logo"`
@@ -112,6 +121,7 @@ type PublicSettings struct {
 	PromoCodeEnabled                 bool             `json:"promo_code_enabled"`
 	PasswordResetEnabled             bool             `json:"password_reset_enabled"`
 	InvitationCodeEnabled            bool             `json:"invitation_code_enabled"`
+	LoginInvitationCodeVisible       bool             `json:"login_invitation_code_visible"`
 	TotpEnabled                      bool             `json:"totp_enabled"` // TOTP 双因素认证
 	TurnstileEnabled                 bool             `json:"turnstile_enabled"`
 	TurnstileSiteKey                 string           `json:"turnstile_site_key"`
@@ -128,6 +138,7 @@ type PublicSettings struct {
 	CustomMenuItems                  []CustomMenuItem `json:"custom_menu_items"`
 	CustomEndpoints                  []CustomEndpoint `json:"custom_endpoints"`
 	LinuxDoOAuthEnabled              bool             `json:"linuxdo_oauth_enabled"`
+	DiscordOAuthEnabled              bool             `json:"discord_oauth_enabled"`
 	SoraClientEnabled                bool             `json:"sora_client_enabled"`
 	BackendModeEnabled               bool             `json:"backend_mode_enabled"`
 	Version                          string           `json:"version"`

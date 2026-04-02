@@ -5,7 +5,7 @@
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import subscriptionsAPI from '@/api/subscriptions'
+import quotasAPI from '@/api/subscriptions'
 import type { UserSubscription } from '@/types'
 
 // Cache TTL: 60 seconds
@@ -56,8 +56,8 @@ export const useSubscriptionStore = defineStore('subscriptions', () => {
 
     // Start new request
     loading.value = true
-    const requestPromise = subscriptionsAPI
-      .getActiveSubscriptions()
+    const requestPromise = quotasAPI
+      .getActiveQuotas()
       .then((data) => {
         if (currentGeneration === requestGeneration) {
           activeSubscriptions.value = data

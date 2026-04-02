@@ -97,6 +97,7 @@ export interface PublicSettings {
   promo_code_enabled: boolean
   password_reset_enabled: boolean
   invitation_code_enabled: boolean
+  login_invitation_code_visible: boolean
   turnstile_enabled: boolean
   turnstile_site_key: string
   site_name: string
@@ -112,6 +113,7 @@ export interface PublicSettings {
   custom_menu_items: CustomMenuItem[]
   custom_endpoints: CustomEndpoint[]
   linuxdo_oauth_enabled: boolean
+  discord_oauth_enabled: boolean
   sora_client_enabled: boolean
   backend_mode_enabled: boolean
   version: string

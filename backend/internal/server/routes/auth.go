@@ -70,6 +70,14 @@ func RegisterAuthRoutes(
 			}),
 			h.Auth.CompleteLinuxDoOAuthRegistration,
 		)
+		auth.GET("/oauth/discord/start", h.Auth.DiscordOAuthStart)
+		auth.GET("/oauth/discord/callback", h.Auth.DiscordOAuthCallback)
+		auth.POST("/oauth/discord/complete-registration",
+			rateLimiter.LimitWithOptions("oauth-discord-complete", 10, time.Minute, middleware.RateLimitOptions{
+				FailureMode: middleware.RateLimitFailClose,
+			}),
+			h.Auth.CompleteDiscordOAuthRegistration,
+		)
 	}
 
 	// 公开设置（无需认证）

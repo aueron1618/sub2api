@@ -8,6 +8,7 @@ type SystemSettings struct {
 	PasswordResetEnabled             bool
 	FrontendURL                      string
 	InvitationCodeEnabled            bool
+	LoginInvitationCodeVisible       bool // 登录页是否显示邀请码输入框
 	TotpEnabled                      bool // TOTP 双因素认证
 
 	SMTPHost               string
@@ -30,6 +31,15 @@ type SystemSettings struct {
 	LinuxDoConnectClientSecret           string
 	LinuxDoConnectClientSecretConfigured bool
 	LinuxDoConnectRedirectURL            string
+
+	DiscordConnectEnabled                bool
+	DiscordConnectClientID               string
+	DiscordConnectClientSecret           string
+	DiscordConnectClientSecretConfigured bool
+	DiscordConnectRedirectURL            string
+	DiscordGuildVerifyEnabled            bool
+	DiscordRequiredGuildID               string
+	DiscordRequiredRoleIDs               string
 
 	SiteName                    string
 	SiteLogo                    string
@@ -93,6 +103,7 @@ type PublicSettings struct {
 	PromoCodeEnabled                 bool
 	PasswordResetEnabled             bool
 	InvitationCodeEnabled            bool
+	LoginInvitationCodeVisible       bool // 登录页是否显示邀请码输入框
 	TotpEnabled                      bool // TOTP 双因素认证
 	TurnstileEnabled                 bool
 	TurnstileSiteKey                 string
@@ -112,6 +123,7 @@ type PublicSettings struct {
 	CustomEndpoints             string // JSON array of custom endpoints
 
 	LinuxDoOAuthEnabled bool
+	DiscordOAuthEnabled bool
 	BackendModeEnabled  bool
 	Version             string
 }

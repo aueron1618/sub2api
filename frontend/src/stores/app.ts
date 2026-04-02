@@ -317,6 +317,7 @@ export const useAppStore = defineStore('app', () => {
         promo_code_enabled: true,
         password_reset_enabled: false,
         invitation_code_enabled: false,
+        login_invitation_code_visible: false,
         turnstile_enabled: false,
         turnstile_site_key: '',
         site_name: siteName.value,
@@ -332,6 +333,7 @@ export const useAppStore = defineStore('app', () => {
         custom_menu_items: [],
         custom_endpoints: [],
         linuxdo_oauth_enabled: false,
+        discord_oauth_enabled: false,
         sora_client_enabled: false,
         backend_mode_enabled: false,
         version: siteVersion.value

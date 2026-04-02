@@ -82,6 +82,7 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 		PasswordResetEnabled:                 settings.PasswordResetEnabled,
 		FrontendURL:                          settings.FrontendURL,
 		InvitationCodeEnabled:                settings.InvitationCodeEnabled,
+		LoginInvitationCodeVisible:           settings.LoginInvitationCodeVisible,
 		TotpEnabled:                          settings.TotpEnabled,
 		TotpEncryptionKeyConfigured:          h.settingService.IsTotpEncryptionKeyConfigured(),
 		SMTPHost:                             settings.SMTPHost,
@@ -98,6 +99,13 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 		LinuxDoConnectClientID:               settings.LinuxDoConnectClientID,
 		LinuxDoConnectClientSecretConfigured: settings.LinuxDoConnectClientSecretConfigured,
 		LinuxDoConnectRedirectURL:            settings.LinuxDoConnectRedirectURL,
+		DiscordConnectEnabled:                settings.DiscordConnectEnabled,
+		DiscordConnectClientID:               settings.DiscordConnectClientID,
+		DiscordConnectClientSecretConfigured: settings.DiscordConnectClientSecretConfigured,
+		DiscordConnectRedirectURL:            settings.DiscordConnectRedirectURL,
+		DiscordGuildVerifyEnabled:            settings.DiscordGuildVerifyEnabled,
+		DiscordRequiredGuildID:               settings.DiscordRequiredGuildID,
+		DiscordRequiredRoleIDs:               settings.DiscordRequiredRoleIDs,
 		SiteName:                             settings.SiteName,
 		SiteLogo:                             settings.SiteLogo,
 		SiteSubtitle:                         settings.SiteSubtitle,
@@ -144,6 +152,7 @@ type UpdateSettingsRequest struct {
 	PasswordResetEnabled             bool     `json:"password_reset_enabled"`
 	FrontendURL                      string   `json:"frontend_url"`
 	InvitationCodeEnabled            bool     `json:"invitation_code_enabled"`
+	LoginInvitationCodeVisible       bool     `json:"login_invitation_code_visible"`
 	TotpEnabled                      bool     `json:"totp_enabled"` // TOTP 双因素认证
 
 	// 邮件服务设置
@@ -165,6 +174,14 @@ type UpdateSettingsRequest struct {
 	LinuxDoConnectClientID     string `json:"linuxdo_connect_client_id"`
 	LinuxDoConnectClientSecret string `json:"linuxdo_connect_client_secret"`
 	LinuxDoConnectRedirectURL  string `json:"linuxdo_connect_redirect_url"`
+
+	DiscordConnectEnabled      bool   `json:"discord_connect_enabled"`
+	DiscordConnectClientID     string `json:"discord_connect_client_id"`
+	DiscordConnectClientSecret string `json:"discord_connect_client_secret"`
+	DiscordConnectRedirectURL  string `json:"discord_connect_redirect_url"`
+	DiscordGuildVerifyEnabled  bool   `json:"discord_guild_verify_enabled"`
+	DiscordRequiredGuildID     string `json:"discord_required_guild_id"`
+	DiscordRequiredRoleIDs     string `json:"discord_required_role_ids"`
 
 	// OEM设置
 	SiteName                    string                `json:"site_name"`
@@ -323,6 +340,34 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 				return
 			}
 			req.LinuxDoConnectClientSecret = previousSettings.LinuxDoConnectClientSecret
+		}
+	}
+
+	// Discord OAuth 参数验证
+	if req.DiscordConnectEnabled {
+		req.DiscordConnectClientID = strings.TrimSpace(req.DiscordConnectClientID)
+		req.DiscordConnectClientSecret = strings.TrimSpace(req.DiscordConnectClientSecret)
+		req.DiscordConnectRedirectURL = strings.TrimSpace(req.DiscordConnectRedirectURL)
+
+		if req.DiscordConnectClientID == "" {
+			response.BadRequest(c, "Discord Client ID is required when enabled")
+			return
+		}
+		if req.DiscordConnectRedirectURL == "" {
+			response.BadRequest(c, "Discord Redirect URL is required when enabled")
+			return
+		}
+		if err := config.ValidateAbsoluteHTTPURL(req.DiscordConnectRedirectURL); err != nil {
+			response.BadRequest(c, "Discord Redirect URL must be an absolute http(s) URL")
+			return
+		}
+
+		if req.DiscordConnectClientSecret == "" {
+			if previousSettings.DiscordConnectClientSecret == "" {
+				response.BadRequest(c, "Discord Client Secret is required when enabled")
+				return
+			}
+			req.DiscordConnectClientSecret = previousSettings.DiscordConnectClientSecret
 		}
 	}
 
@@ -541,6 +586,7 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		PasswordResetEnabled:             req.PasswordResetEnabled,
 		FrontendURL:                      req.FrontendURL,
 		InvitationCodeEnabled:            req.InvitationCodeEnabled,
+		LoginInvitationCodeVisible:       req.LoginInvitationCodeVisible,
 		TotpEnabled:                      req.TotpEnabled,
 		SMTPHost:                         req.SMTPHost,
 		SMTPPort:                         req.SMTPPort,
@@ -556,6 +602,13 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		LinuxDoConnectClientID:           req.LinuxDoConnectClientID,
 		LinuxDoConnectClientSecret:       req.LinuxDoConnectClientSecret,
 		LinuxDoConnectRedirectURL:        req.LinuxDoConnectRedirectURL,
+		DiscordConnectEnabled:            req.DiscordConnectEnabled,
+		DiscordConnectClientID:           req.DiscordConnectClientID,
+		DiscordConnectClientSecret:       req.DiscordConnectClientSecret,
+		DiscordConnectRedirectURL:        req.DiscordConnectRedirectURL,
+		DiscordGuildVerifyEnabled:        req.DiscordGuildVerifyEnabled,
+		DiscordRequiredGuildID:           req.DiscordRequiredGuildID,
+		DiscordRequiredRoleIDs:           req.DiscordRequiredRoleIDs,
 		SiteName:                         req.SiteName,
 		SiteLogo:                         req.SiteLogo,
 		SiteSubtitle:                     req.SiteSubtitle,
@@ -650,6 +703,7 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		PasswordResetEnabled:                 updatedSettings.PasswordResetEnabled,
 		FrontendURL:                          updatedSettings.FrontendURL,
 		InvitationCodeEnabled:                updatedSettings.InvitationCodeEnabled,
+		LoginInvitationCodeVisible:           updatedSettings.LoginInvitationCodeVisible,
 		TotpEnabled:                          updatedSettings.TotpEnabled,
 		TotpEncryptionKeyConfigured:          h.settingService.IsTotpEncryptionKeyConfigured(),
 		SMTPHost:                             updatedSettings.SMTPHost,
@@ -666,6 +720,13 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		LinuxDoConnectClientID:               updatedSettings.LinuxDoConnectClientID,
 		LinuxDoConnectClientSecretConfigured: updatedSettings.LinuxDoConnectClientSecretConfigured,
 		LinuxDoConnectRedirectURL:            updatedSettings.LinuxDoConnectRedirectURL,
+		DiscordConnectEnabled:                updatedSettings.DiscordConnectEnabled,
+		DiscordConnectClientID:               updatedSettings.DiscordConnectClientID,
+		DiscordConnectClientSecretConfigured: updatedSettings.DiscordConnectClientSecretConfigured,
+		DiscordConnectRedirectURL:            updatedSettings.DiscordConnectRedirectURL,
+		DiscordGuildVerifyEnabled:            updatedSettings.DiscordGuildVerifyEnabled,
+		DiscordRequiredGuildID:               updatedSettings.DiscordRequiredGuildID,
+		DiscordRequiredRoleIDs:               updatedSettings.DiscordRequiredRoleIDs,
 		SiteName:                             updatedSettings.SiteName,
 		SiteLogo:                             updatedSettings.SiteLogo,
 		SiteSubtitle:                         updatedSettings.SiteSubtitle,
@@ -739,6 +800,9 @@ func diffSettings(before *service.SystemSettings, after *service.SystemSettings,
 	if before.FrontendURL != after.FrontendURL {
 		changed = append(changed, "frontend_url")
 	}
+	if before.LoginInvitationCodeVisible != after.LoginInvitationCodeVisible {
+		changed = append(changed, "login_invitation_code_visible")
+	}
 	if before.TotpEnabled != after.TotpEnabled {
 		changed = append(changed, "totp_enabled")
 	}
@@ -783,6 +847,27 @@ func diffSettings(before *service.SystemSettings, after *service.SystemSettings,
 	}
 	if before.LinuxDoConnectRedirectURL != after.LinuxDoConnectRedirectURL {
 		changed = append(changed, "linuxdo_connect_redirect_url")
+	}
+	if before.DiscordConnectEnabled != after.DiscordConnectEnabled {
+		changed = append(changed, "discord_connect_enabled")
+	}
+	if before.DiscordConnectClientID != after.DiscordConnectClientID {
+		changed = append(changed, "discord_connect_client_id")
+	}
+	if req.DiscordConnectClientSecret != "" {
+		changed = append(changed, "discord_connect_client_secret")
+	}
+	if before.DiscordConnectRedirectURL != after.DiscordConnectRedirectURL {
+		changed = append(changed, "discord_connect_redirect_url")
+	}
+	if before.DiscordGuildVerifyEnabled != after.DiscordGuildVerifyEnabled {
+		changed = append(changed, "discord_guild_verify_enabled")
+	}
+	if before.DiscordRequiredGuildID != after.DiscordRequiredGuildID {
+		changed = append(changed, "discord_required_guild_id")
+	}
+	if before.DiscordRequiredRoleIDs != after.DiscordRequiredRoleIDs {
+		changed = append(changed, "discord_required_role_ids")
 	}
 	if before.SiteName != after.SiteName {
 		changed = append(changed, "site_name")

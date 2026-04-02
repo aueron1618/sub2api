@@ -789,6 +789,20 @@
               </div>
               <Toggle v-model="form.invitation_code_enabled" />
             </div>
+            <!-- Login Invitation Code Visible -->
+            <div
+              class="flex items-center justify-between border-t border-gray-100 pt-4 dark:border-dark-700"
+            >
+              <div>
+                <label class="font-medium text-gray-900 dark:text-white">{{
+                  t('admin.settings.registration.loginInvitationCode')
+                }}</label>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  {{ t('admin.settings.registration.loginInvitationCodeHint') }}
+                </p>
+              </div>
+              <Toggle v-model="form.login_invitation_code_visible" />
+            </div>
             <!-- Password Reset - Only show when email verification is enabled -->
             <div
               v-if="form.email_verify_enabled"
@@ -1022,7 +1036,157 @@
             </div>
           </div>
         </div>
-        </div><!-- /Tab: Security — Registration, Turnstile, LinuxDo -->
+
+        <!-- Discord OAuth 登录 -->
+        <div class="card">
+          <div class="border-b border-gray-100 px-6 py-4 dark:border-dark-700">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+              {{ t('admin.settings.discord.title') }}
+            </h2>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              {{ t('admin.settings.discord.description') }}
+            </p>
+          </div>
+          <div class="space-y-5 p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <label class="font-medium text-gray-900 dark:text-white">{{
+                  t('admin.settings.discord.enable')
+                }}</label>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  {{ t('admin.settings.discord.enableHint') }}
+                </p>
+              </div>
+              <Toggle v-model="form.discord_connect_enabled" />
+            </div>
+
+            <div
+              v-if="form.discord_connect_enabled"
+              class="border-t border-gray-100 pt-4 dark:border-dark-700"
+            >
+              <div class="grid grid-cols-1 gap-6">
+                <div>
+                  <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {{ t('admin.settings.discord.clientId') }}
+                  </label>
+                  <input
+                    v-model="form.discord_connect_client_id"
+                    type="text"
+                    class="input font-mono text-sm"
+                    :placeholder="t('admin.settings.discord.clientIdPlaceholder')"
+                  />
+                  <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                    {{ t('admin.settings.discord.clientIdHint') }}
+                  </p>
+                </div>
+
+                <div>
+                  <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {{ t('admin.settings.discord.clientSecret') }}
+                  </label>
+                  <input
+                    v-model="form.discord_connect_client_secret"
+                    type="password"
+                    class="input font-mono text-sm"
+                    :placeholder="
+                      form.discord_connect_client_secret_configured
+                        ? t('admin.settings.discord.clientSecretConfiguredPlaceholder')
+                        : t('admin.settings.discord.clientSecretPlaceholder')
+                    "
+                  />
+                  <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                    {{
+                      form.discord_connect_client_secret_configured
+                        ? t('admin.settings.discord.clientSecretConfiguredHint')
+                        : t('admin.settings.discord.clientSecretHint')
+                    }}
+                  </p>
+                </div>
+
+                <div>
+                  <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {{ t('admin.settings.discord.redirectUrl') }}
+                  </label>
+                  <input
+                    v-model="form.discord_connect_redirect_url"
+                    type="url"
+                    class="input font-mono text-sm"
+                    :placeholder="t('admin.settings.discord.redirectUrlPlaceholder')"
+                  />
+                  <div class="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+                    <button
+                      type="button"
+                      class="btn btn-secondary btn-sm w-fit"
+                      @click="setAndCopyDiscordRedirectUrl"
+                    >
+                      {{ t('admin.settings.discord.quickSetCopy') }}
+                    </button>
+                    <code
+                      v-if="discordRedirectUrlSuggestion"
+                      class="select-all break-all rounded bg-gray-50 px-2 py-1 font-mono text-xs text-gray-600 dark:bg-dark-800 dark:text-gray-300"
+                    >
+                      {{ discordRedirectUrlSuggestion }}
+                    </code>
+                  </div>
+                  <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                    {{ t('admin.settings.discord.redirectUrlHint') }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Guild / Role Verification -->
+              <div class="mt-6 border-t border-gray-100 pt-4 dark:border-dark-700">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">{{
+                      t('admin.settings.discord.guildVerify')
+                    }}</label>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                      {{ t('admin.settings.discord.guildVerifyHint') }}
+                    </p>
+                  </div>
+                  <Toggle v-model="form.discord_guild_verify_enabled" />
+                </div>
+
+                <div
+                  v-if="form.discord_guild_verify_enabled"
+                  class="mt-4 space-y-4"
+                >
+                  <div>
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {{ t('admin.settings.discord.requiredGuildId') }}
+                    </label>
+                    <input
+                      v-model="form.discord_required_guild_id"
+                      type="text"
+                      class="input font-mono text-sm"
+                      :placeholder="t('admin.settings.discord.requiredGuildIdPlaceholder')"
+                    />
+                    <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                      {{ t('admin.settings.discord.requiredGuildIdHint') }}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {{ t('admin.settings.discord.requiredRoleIds') }}
+                    </label>
+                    <input
+                      v-model="form.discord_required_role_ids"
+                      type="text"
+                      class="input font-mono text-sm"
+                      :placeholder="t('admin.settings.discord.requiredRoleIdsPlaceholder')"
+                    />
+                    <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                      {{ t('admin.settings.discord.requiredRoleIdsHint') }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div><!-- /Tab: Security — Registration, Turnstile, LinuxDo, Discord -->
 
         <!-- Tab: Users -->
         <div v-show="activeTab === 'users'" class="space-y-6">
@@ -2107,6 +2271,7 @@ type SettingsForm = SystemSettings & {
   smtp_password: string
   turnstile_secret_key: string
   linuxdo_connect_client_secret: string
+  discord_connect_client_secret: string
 }
 
 const form = reactive<SettingsForm>({
@@ -2115,6 +2280,7 @@ const form = reactive<SettingsForm>({
   registration_email_suffix_whitelist: [],
   promo_code_enabled: true,
   invitation_code_enabled: false,
+  login_invitation_code_visible: false,
   password_reset_enabled: false,
   totp_enabled: false,
   totp_encryption_key_configured: false,
@@ -2155,6 +2321,15 @@ const form = reactive<SettingsForm>({
   linuxdo_connect_client_secret: '',
   linuxdo_connect_client_secret_configured: false,
   linuxdo_connect_redirect_url: '',
+  // Discord OAuth 登录
+  discord_connect_enabled: false,
+  discord_connect_client_id: '',
+  discord_connect_client_secret: '',
+  discord_connect_client_secret_configured: false,
+  discord_connect_redirect_url: '',
+  discord_guild_verify_enabled: false,
+  discord_required_guild_id: '',
+  discord_required_role_ids: '',
   // Model fallback
   enable_model_fallback: false,
   fallback_model_anthropic: 'claude-3-5-sonnet-20241022',
@@ -2274,6 +2449,22 @@ async function setAndCopyLinuxdoRedirectUrl() {
   await copyToClipboard(url, t('admin.settings.linuxdo.redirectUrlSetAndCopied'))
 }
 
+// Discord OAuth redirect URL suggestion
+const discordRedirectUrlSuggestion = computed(() => {
+  if (typeof window === 'undefined') return ''
+  const origin =
+    window.location.origin || `${window.location.protocol}//${window.location.host}`
+  return `${origin}/api/v1/auth/oauth/discord/callback`
+})
+
+async function setAndCopyDiscordRedirectUrl() {
+  const url = discordRedirectUrlSuggestion.value
+  if (!url) return
+
+  form.discord_connect_redirect_url = url
+  await copyToClipboard(url, t('admin.settings.discord.redirectUrlSetAndCopied'))
+}
+
 // Custom menu item management
 function addMenuItem() {
   form.custom_menu_items.push({
@@ -2339,6 +2530,7 @@ async function loadSettings() {
     smtpPasswordManuallyEdited.value = false
     form.turnstile_secret_key = ''
     form.linuxdo_connect_client_secret = ''
+    form.discord_connect_client_secret = ''
   } catch (error: any) {
     loadFailed.value = true
     appStore.showError(
@@ -2440,6 +2632,7 @@ async function saveSettings() {
       ),
       promo_code_enabled: form.promo_code_enabled,
       invitation_code_enabled: form.invitation_code_enabled,
+      login_invitation_code_visible: form.login_invitation_code_visible,
       password_reset_enabled: form.password_reset_enabled,
       totp_enabled: form.totp_enabled,
       default_balance: form.default_balance,
@@ -2474,6 +2667,13 @@ async function saveSettings() {
       linuxdo_connect_client_id: form.linuxdo_connect_client_id,
       linuxdo_connect_client_secret: form.linuxdo_connect_client_secret || undefined,
       linuxdo_connect_redirect_url: form.linuxdo_connect_redirect_url,
+      discord_connect_enabled: form.discord_connect_enabled,
+      discord_connect_client_id: form.discord_connect_client_id,
+      discord_connect_client_secret: form.discord_connect_client_secret || undefined,
+      discord_connect_redirect_url: form.discord_connect_redirect_url,
+      discord_guild_verify_enabled: form.discord_guild_verify_enabled,
+      discord_required_guild_id: form.discord_required_guild_id,
+      discord_required_role_ids: form.discord_required_role_ids,
       enable_model_fallback: form.enable_model_fallback,
       fallback_model_anthropic: form.fallback_model_anthropic,
       fallback_model_openai: form.fallback_model_openai,
@@ -2497,6 +2697,7 @@ async function saveSettings() {
     smtpPasswordManuallyEdited.value = false
     form.turnstile_secret_key = ''
     form.linuxdo_connect_client_secret = ''
+    form.discord_connect_client_secret = ''
     // Refresh cached settings so sidebar/header update immediately
     await appStore.fetchPublicSettings(true)
     await adminSettingsStore.fetch(true)
