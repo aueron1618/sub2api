@@ -11,6 +11,7 @@ import (
 	"github.com/Wei-Shaw/sub2api/internal/config"
 	infraerrors "github.com/Wei-Shaw/sub2api/internal/pkg/errors"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type settingRepoStub struct {
@@ -107,7 +108,7 @@ func (s *emailCacheStub) SetPasswordResetEmailCooldown(ctx context.Context, emai
 	return nil
 }
 
-func newAuthService(repo *userRepoStub, settings map[string]string, emailCache EmailCache) *AuthService {
+func newAuthService(repo UserRepository, settings map[string]string, emailCache EmailCache) *AuthService {
 	cfg := &config.Config{
 		JWT: config.JWTConfig{
 			Secret:     "test-secret",
@@ -144,6 +145,28 @@ func newAuthService(repo *userRepoStub, settings map[string]string, emailCache E
 	)
 }
 
+type authLoginUserRepoStub struct {
+	userRepoStub
+	getByEmailErr error
+}
+
+func (s *authLoginUserRepoStub) GetByEmail(ctx context.Context, email string) (*User, error) {
+	if s.getByEmailErr != nil {
+		return nil, s.getByEmailErr
+	}
+	if s.user == nil {
+		return nil, ErrUserNotFound
+	}
+	return s.user, nil
+}
+
+func mustHashPasswordForAuthTest(t *testing.T, raw string) string {
+	t.Helper()
+	hash, err := bcrypt.GenerateFromPassword([]byte(raw), bcrypt.DefaultCost)
+	require.NoError(t, err)
+	return string(hash)
+}
+
 func TestAuthService_Register_Disabled(t *testing.T) {
 	repo := &userRepoStub{}
 	service := newAuthService(repo, map[string]string{
@@ -161,6 +184,28 @@ func TestAuthService_Register_DisabledByDefault(t *testing.T) {
 
 	_, _, err := service.Register(context.Background(), "user@test.com", "password")
 	require.ErrorIs(t, err, ErrRegDisabled)
+}
+
+func TestAuthService_Register_EmailAuthDisabled(t *testing.T) {
+	repo := &userRepoStub{}
+	service := newAuthService(repo, map[string]string{
+		SettingKeyRegistrationEnabled: "true",
+		SettingKeyEmailAuthEnabled:    "false",
+	}, nil)
+
+	_, _, err := service.Register(context.Background(), "user@test.com", "password")
+	require.ErrorIs(t, err, ErrEmailAuthDisabled)
+}
+
+func TestAuthService_SendVerifyCode_EmailAuthDisabled(t *testing.T) {
+	repo := &userRepoStub{}
+	service := newAuthService(repo, map[string]string{
+		SettingKeyRegistrationEnabled: "true",
+		SettingKeyEmailAuthEnabled:    "false",
+	}, nil)
+
+	err := service.SendVerifyCode(context.Background(), "user@test.com")
+	require.ErrorIs(t, err, ErrEmailAuthDisabled)
 }
 
 func TestAuthService_Register_EmailVerifyEnabledButServiceNotConfigured(t *testing.T) {
@@ -300,6 +345,24 @@ func TestAuthService_Register_CreateEmailExistsRace(t *testing.T) {
 
 	_, _, err := service.Register(context.Background(), "user@test.com", "password")
 	require.ErrorIs(t, err, ErrEmailExists)
+}
+
+func TestAuthService_Login_EmailAuthDisabled(t *testing.T) {
+	repo := &authLoginUserRepoStub{}
+	service := newAuthService(repo, map[string]string{
+		SettingKeyEmailAuthEnabled: "false",
+	}, nil)
+
+	_, _, err := service.Login(context.Background(), "user@test.com", "password")
+	require.ErrorIs(t, err, ErrEmailAuthDisabled)
+}
+
+func TestAuthService_Login_EmailAuthEnabledByDefaultWhenSettingMissing(t *testing.T) {
+	repo := &authLoginUserRepoStub{userRepoStub: userRepoStub{user: &User{Email: "user@test.com", PasswordHash: mustHashPasswordForAuthTest(t, "password"), Status: StatusActive}}}
+	service := newAuthService(repo, map[string]string{}, nil)
+
+	_, _, err := service.Login(context.Background(), "user@test.com", "password")
+	require.NoError(t, err)
 }
 
 func TestAuthService_Register_Success(t *testing.T) {

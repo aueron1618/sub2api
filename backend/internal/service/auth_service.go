@@ -37,6 +37,7 @@ var (
 	ErrEmailVerifyRequired     = infraerrors.BadRequest("EMAIL_VERIFY_REQUIRED", "email verification is required")
 	ErrEmailSuffixNotAllowed   = infraerrors.BadRequest("EMAIL_SUFFIX_NOT_ALLOWED", "email suffix is not allowed")
 	ErrRegDisabled             = infraerrors.Forbidden("REGISTRATION_DISABLED", "registration is currently disabled")
+	ErrEmailAuthDisabled       = infraerrors.Forbidden("EMAIL_AUTH_DISABLED", "email registration and login are currently disabled")
 	ErrServiceUnavailable      = infraerrors.ServiceUnavailable("SERVICE_UNAVAILABLE", "service temporarily unavailable")
 	ErrInvitationCodeRequired  = infraerrors.BadRequest("INVITATION_CODE_REQUIRED", "invitation code is required")
 	ErrInvitationCodeInvalid   = infraerrors.BadRequest("INVITATION_CODE_INVALID", "invalid or used invitation code")
@@ -116,6 +117,9 @@ func (s *AuthService) RegisterWithVerification(ctx context.Context, email, passw
 	// 检查是否开放注册（默认关闭：settingService 未配置时不允许注册）
 	if s.settingService == nil || !s.settingService.IsRegistrationEnabled(ctx) {
 		return "", nil, ErrRegDisabled
+	}
+	if !s.IsEmailAuthEnabled(ctx) {
+		return "", nil, ErrEmailAuthDisabled
 	}
 
 	// 防止用户注册 OAuth 合成邮箱（如 LinuxDo/Discord），避免第三方登录与本地账号发生碰撞。
@@ -247,6 +251,9 @@ func (s *AuthService) SendVerifyCode(ctx context.Context, email string) error {
 	if s.settingService == nil || !s.settingService.IsRegistrationEnabled(ctx) {
 		return ErrRegDisabled
 	}
+	if !s.IsEmailAuthEnabled(ctx) {
+		return ErrEmailAuthDisabled
+	}
 
 	if isReservedEmail(email) {
 		return ErrEmailReserved
@@ -287,6 +294,10 @@ func (s *AuthService) SendVerifyCodeAsync(ctx context.Context, email string) (*S
 	if s.settingService == nil || !s.settingService.IsRegistrationEnabled(ctx) {
 		logger.LegacyPrintf("service.auth", "%s", "[Auth] Registration is disabled")
 		return nil, ErrRegDisabled
+	}
+	if !s.IsEmailAuthEnabled(ctx) {
+		logger.LegacyPrintf("service.auth", "%s", "[Auth] Email auth is disabled")
+		return nil, ErrEmailAuthDisabled
 	}
 
 	if isReservedEmail(email) {
@@ -399,8 +410,20 @@ func (s *AuthService) IsEmailVerifyEnabled(ctx context.Context) bool {
 	return s.settingService.IsEmailVerifyEnabled(ctx)
 }
 
+// IsEmailAuthEnabled 检查是否允许邮箱密码注册/登录
+func (s *AuthService) IsEmailAuthEnabled(ctx context.Context) bool {
+	if s.settingService == nil {
+		return true
+	}
+	return s.settingService.IsEmailAuthEnabled(ctx)
+}
+
 // Login 用户登录，返回JWT token
 func (s *AuthService) Login(ctx context.Context, email, password string) (string, *User, error) {
+	if !s.IsEmailAuthEnabled(ctx) {
+		return "", nil, ErrEmailAuthDisabled
+	}
+
 	// 查找用户
 	user, err := s.userRepo.GetByEmail(ctx, email)
 	if err != nil {

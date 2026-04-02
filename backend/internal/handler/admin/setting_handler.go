@@ -76,6 +76,7 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 
 	response.Success(c, dto.SystemSettings{
 		RegistrationEnabled:                  settings.RegistrationEnabled,
+		EmailAuthEnabled:                     settings.EmailAuthEnabled,
 		EmailVerifyEnabled:                   settings.EmailVerifyEnabled,
 		RegistrationEmailSuffixWhitelist:     settings.RegistrationEmailSuffixWhitelist,
 		PromoCodeEnabled:                     settings.PromoCodeEnabled,
@@ -146,6 +147,7 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 type UpdateSettingsRequest struct {
 	// 注册设置
 	RegistrationEnabled              bool     `json:"registration_enabled"`
+	EmailAuthEnabled                 *bool    `json:"email_auth_enabled"`
 	EmailVerifyEnabled               bool     `json:"email_verify_enabled"`
 	RegistrationEmailSuffixWhitelist []string `json:"registration_email_suffix_whitelist"`
 	PromoCodeEnabled                 bool     `json:"promo_code_enabled"`
@@ -580,6 +582,12 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 
 	settings := &service.SystemSettings{
 		RegistrationEnabled:              req.RegistrationEnabled,
+		EmailAuthEnabled: func() bool {
+			if req.EmailAuthEnabled != nil {
+				return *req.EmailAuthEnabled
+			}
+			return previousSettings.EmailAuthEnabled
+		}(),
 		EmailVerifyEnabled:               req.EmailVerifyEnabled,
 		RegistrationEmailSuffixWhitelist: req.RegistrationEmailSuffixWhitelist,
 		PromoCodeEnabled:                 req.PromoCodeEnabled,
@@ -697,6 +705,7 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 
 	response.Success(c, dto.SystemSettings{
 		RegistrationEnabled:                  updatedSettings.RegistrationEnabled,
+		EmailAuthEnabled:                     updatedSettings.EmailAuthEnabled,
 		EmailVerifyEnabled:                   updatedSettings.EmailVerifyEnabled,
 		RegistrationEmailSuffixWhitelist:     updatedSettings.RegistrationEmailSuffixWhitelist,
 		PromoCodeEnabled:                     updatedSettings.PromoCodeEnabled,
@@ -787,6 +796,9 @@ func diffSettings(before *service.SystemSettings, after *service.SystemSettings,
 	changed := make([]string, 0, 20)
 	if before.RegistrationEnabled != after.RegistrationEnabled {
 		changed = append(changed, "registration_enabled")
+	}
+	if before.EmailAuthEnabled != after.EmailAuthEnabled {
+		changed = append(changed, "email_auth_enabled")
 	}
 	if before.EmailVerifyEnabled != after.EmailVerifyEnabled {
 		changed = append(changed, "email_verify_enabled")

@@ -144,6 +144,7 @@ func (s *SettingService) GetFrontendURL(ctx context.Context) string {
 func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings, error) {
 	keys := []string{
 		SettingKeyRegistrationEnabled,
+		SettingKeyEmailAuthEnabled,
 		SettingKeyEmailVerifyEnabled,
 		SettingKeyRegistrationEmailSuffixWhitelist,
 		SettingKeyPromoCodeEnabled,
@@ -189,6 +190,7 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 	} else {
 		discordEnabled = s.cfg != nil && s.cfg.Discord.Enabled
 	}
+	emailAuthEnabled := settings[SettingKeyEmailAuthEnabled] != "false"
 
 	// Password reset requires email verification to be enabled
 	emailVerifyEnabled := settings[SettingKeyEmailVerifyEnabled] == "true"
@@ -199,6 +201,7 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 
 	return &PublicSettings{
 		RegistrationEnabled:              settings[SettingKeyRegistrationEnabled] == "true",
+		EmailAuthEnabled:                 emailAuthEnabled,
 		EmailVerifyEnabled:               emailVerifyEnabled,
 		RegistrationEmailSuffixWhitelist: registrationEmailSuffixWhitelist,
 		PromoCodeEnabled:                 settings[SettingKeyPromoCodeEnabled] != "false", // 默认启用
@@ -254,6 +257,7 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 	// Return a struct that matches the frontend's expected format
 	return &struct {
 		RegistrationEnabled              bool            `json:"registration_enabled"`
+		EmailAuthEnabled                 bool            `json:"email_auth_enabled"`
 		EmailVerifyEnabled               bool            `json:"email_verify_enabled"`
 		RegistrationEmailSuffixWhitelist []string        `json:"registration_email_suffix_whitelist"`
 		PromoCodeEnabled                 bool            `json:"promo_code_enabled"`
@@ -282,6 +286,7 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 		Version                          string          `json:"version,omitempty"`
 	}{
 		RegistrationEnabled:              settings.RegistrationEnabled,
+		EmailAuthEnabled:                 settings.EmailAuthEnabled,
 		EmailVerifyEnabled:               settings.EmailVerifyEnabled,
 		RegistrationEmailSuffixWhitelist: settings.RegistrationEmailSuffixWhitelist,
 		PromoCodeEnabled:                 settings.PromoCodeEnabled,
@@ -448,6 +453,7 @@ func (s *SettingService) UpdateSettings(ctx context.Context, settings *SystemSet
 
 	// 注册设置
 	updates[SettingKeyRegistrationEnabled] = strconv.FormatBool(settings.RegistrationEnabled)
+	updates[SettingKeyEmailAuthEnabled] = strconv.FormatBool(settings.EmailAuthEnabled)
 	updates[SettingKeyEmailVerifyEnabled] = strconv.FormatBool(settings.EmailVerifyEnabled)
 	registrationEmailSuffixWhitelistJSON, err := json.Marshal(settings.RegistrationEmailSuffixWhitelist)
 	if err != nil {
@@ -631,6 +637,15 @@ func (s *SettingService) IsRegistrationEnabled(ctx context.Context) bool {
 		return false
 	}
 	return value == "true"
+}
+
+// IsEmailAuthEnabled 检查是否允许邮箱密码注册/登录
+func (s *SettingService) IsEmailAuthEnabled(ctx context.Context) bool {
+	value, err := s.settingRepo.GetValue(ctx, SettingKeyEmailAuthEnabled)
+	if err != nil {
+		return true // 向后兼容：缺省时保持邮箱认证开启
+	}
+	return value != "false"
 }
 
 // IsBackendModeEnabled checks if backend mode is enabled
@@ -852,6 +867,7 @@ func (s *SettingService) InitializeDefaultSettings(ctx context.Context) error {
 	// 初始化默认设置
 	defaults := map[string]string{
 		SettingKeyRegistrationEnabled:              "true",
+		SettingKeyEmailAuthEnabled:                 "true",
 		SettingKeyEmailVerifyEnabled:               "false",
 		SettingKeyRegistrationEmailSuffixWhitelist: "[]",
 		SettingKeyPromoCodeEnabled:                 "true", // 默认启用优惠码功能
@@ -896,9 +912,11 @@ func (s *SettingService) InitializeDefaultSettings(ctx context.Context) error {
 
 // parseSettings 解析设置到结构体
 func (s *SettingService) parseSettings(settings map[string]string) *SystemSettings {
+	emailAuthEnabled := settings[SettingKeyEmailAuthEnabled] != "false"
 	emailVerifyEnabled := settings[SettingKeyEmailVerifyEnabled] == "true"
 	result := &SystemSettings{
 		RegistrationEnabled:              settings[SettingKeyRegistrationEnabled] == "true",
+		EmailAuthEnabled:                 emailAuthEnabled,
 		EmailVerifyEnabled:               emailVerifyEnabled,
 		RegistrationEmailSuffixWhitelist: ParseRegistrationEmailSuffixWhitelist(settings[SettingKeyRegistrationEmailSuffixWhitelist]),
 		PromoCodeEnabled:                 settings[SettingKeyPromoCodeEnabled] != "false", // 默认启用

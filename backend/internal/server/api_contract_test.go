@@ -491,6 +491,7 @@ func TestAPIContracts(t *testing.T) {
 				"message": "success",
 				"data": {
 					"registration_enabled": true,
+					"email_auth_enabled": true,
 					"email_verify_enabled": false,
 					"registration_email_suffix_whitelist": [],
 					"promo_code_enabled": true,

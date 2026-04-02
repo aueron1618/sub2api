@@ -2,6 +2,7 @@ package service
 
 type SystemSettings struct {
 	RegistrationEnabled              bool
+	EmailAuthEnabled                 bool
 	EmailVerifyEnabled               bool
 	RegistrationEmailSuffixWhitelist []string
 	PromoCodeEnabled                 bool
@@ -98,6 +99,7 @@ type DefaultSubscriptionSetting struct {
 
 type PublicSettings struct {
 	RegistrationEnabled              bool
+	EmailAuthEnabled                 bool
 	EmailVerifyEnabled               bool
 	RegistrationEmailSuffixWhitelist []string
 	PromoCodeEnabled                 bool

@@ -19,7 +19,7 @@
 
       <!-- Registration Disabled Message -->
       <div
-        v-if="!registrationEnabled && settingsLoaded"
+        v-if="settingsLoaded && !canUseEmailRegistration"
         class="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800/50 dark:bg-amber-900/20"
       >
         <div class="flex items-start gap-3">
@@ -27,13 +27,13 @@
             <Icon name="exclamationCircle" size="md" class="text-amber-500" />
           </div>
           <p class="text-sm text-amber-700 dark:text-amber-400">
-            {{ t('auth.registrationDisabled') }}
+            {{ registrationEnabled ? t('auth.emailRegistrationDisabled') : t('auth.registrationDisabled') }}
           </p>
         </div>
       </div>
 
       <!-- Registration Form -->
-      <form v-else @submit.prevent="handleRegister" class="space-y-5">
+      <form v-else-if="canUseEmailRegistration" @submit.prevent="handleRegister" class="space-y-5">
         <!-- Email Input -->
         <div>
           <label for="email" class="input-label">
@@ -287,7 +287,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import { computed, ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { AuthLayout } from '@/components/layout'
@@ -321,6 +321,7 @@ const showPassword = ref<boolean>(false)
 
 // Public settings
 const registrationEnabled = ref<boolean>(true)
+const emailAuthEnabled = ref<boolean>(true)
 const emailVerifyEnabled = ref<boolean>(false)
 const promoCodeEnabled = ref<boolean>(true)
 const invitationCodeEnabled = ref<boolean>(false)
@@ -330,6 +331,7 @@ const siteName = ref<string>('Sub2API')
 const linuxdoOAuthEnabled = ref<boolean>(false)
 const discordOAuthEnabled = ref<boolean>(false)
 const registrationEmailSuffixWhitelist = ref<string[]>([])
+const canUseEmailRegistration = computed(() => registrationEnabled.value && emailAuthEnabled.value)
 
 // Turnstile
 const turnstileRef = ref<InstanceType<typeof TurnstileWidget> | null>(null)
@@ -374,6 +376,7 @@ onMounted(async () => {
   try {
     const settings = await getPublicSettings()
     registrationEnabled.value = settings.registration_enabled
+    emailAuthEnabled.value = settings.email_auth_enabled
     emailVerifyEnabled.value = settings.email_verify_enabled
     promoCodeEnabled.value = settings.promo_code_enabled
     invitationCodeEnabled.value = settings.invitation_code_enabled

@@ -92,6 +92,7 @@ export interface CustomEndpoint {
 
 export interface PublicSettings {
   registration_enabled: boolean
+  email_auth_enabled: boolean
   email_verify_enabled: boolean
   registration_email_suffix_whitelist: string[]
   promo_code_enabled: boolean

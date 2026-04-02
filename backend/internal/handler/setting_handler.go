@@ -33,6 +33,7 @@ func (h *SettingHandler) GetPublicSettings(c *gin.Context) {
 
 	response.Success(c, dto.PublicSettings{
 		RegistrationEnabled:              settings.RegistrationEnabled,
+		EmailAuthEnabled:                 settings.EmailAuthEnabled,
 		EmailVerifyEnabled:               settings.EmailVerifyEnabled,
 		RegistrationEmailSuffixWhitelist: settings.RegistrationEmailSuffixWhitelist,
 		PromoCodeEnabled:                 settings.PromoCodeEnabled,

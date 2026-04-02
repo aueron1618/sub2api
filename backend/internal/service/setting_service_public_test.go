@@ -52,6 +52,7 @@ func TestSettingService_GetPublicSettings_ExposesRegistrationEmailSuffixWhitelis
 	repo := &settingPublicRepoStub{
 		values: map[string]string{
 			SettingKeyRegistrationEnabled:              "true",
+			SettingKeyEmailAuthEnabled:                 "false",
 			SettingKeyEmailVerifyEnabled:               "true",
 			SettingKeyRegistrationEmailSuffixWhitelist: `["@EXAMPLE.com"," @foo.bar ","@invalid_domain",""]`,
 		},
@@ -60,5 +61,37 @@ func TestSettingService_GetPublicSettings_ExposesRegistrationEmailSuffixWhitelis
 
 	settings, err := svc.GetPublicSettings(context.Background())
 	require.NoError(t, err)
+	require.False(t, settings.EmailAuthEnabled)
 	require.Equal(t, []string{"@example.com", "@foo.bar"}, settings.RegistrationEmailSuffixWhitelist)
+}
+
+func TestSettingService_GetPublicSettings_EmailAuthDefaultsToEnabledWhenSettingMissing(t *testing.T) {
+	repo := &settingPublicRepoStub{
+		values: map[string]string{
+			SettingKeyRegistrationEnabled: "true",
+		},
+	}
+	svc := NewSettingService(repo, &config.Config{})
+
+	settings, err := svc.GetPublicSettings(context.Background())
+	require.NoError(t, err)
+	require.True(t, settings.EmailAuthEnabled)
+}
+
+func TestSettingService_IsEmailAuthEnabled_DefaultsToTrueWhenSettingMissing(t *testing.T) {
+	repo := &settingRepoStub{
+		values: map[string]string{},
+	}
+	svc := NewSettingService(repo, &config.Config{})
+
+	require.True(t, svc.IsEmailAuthEnabled(context.Background()))
+}
+
+func TestSettingService_IsEmailAuthEnabled_UsesStoredFalseValue(t *testing.T) {
+	repo := &settingRepoStub{
+		values: map[string]string{SettingKeyEmailAuthEnabled: "false"},
+	}
+	svc := NewSettingService(repo, &config.Config{})
+
+	require.False(t, svc.IsEmailAuthEnabled(context.Background()))
 }

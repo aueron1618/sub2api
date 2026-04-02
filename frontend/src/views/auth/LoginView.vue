@@ -20,8 +20,22 @@
         <DiscordOAuthSection v-if="discordOAuthEnabled" :disabled="isLoading" />
       </div>
 
+      <div
+        v-if="!emailAuthEnabled"
+        class="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800/50 dark:bg-amber-900/20"
+      >
+        <div class="flex items-start gap-3">
+          <div class="flex-shrink-0">
+            <Icon name="exclamationCircle" size="md" class="text-amber-500" />
+          </div>
+          <p class="text-sm text-amber-700 dark:text-amber-400">
+            {{ t('auth.emailLoginDisabled') }}
+          </p>
+        </div>
+      </div>
+
       <!-- Login Form -->
-      <form @submit.prevent="handleLogin" class="space-y-5">
+      <form v-else @submit.prevent="handleLogin" class="space-y-5">
         <!-- Email Input -->
         <div>
           <label for="email" class="input-label">
@@ -181,7 +195,7 @@
     </div>
 
     <!-- Footer -->
-    <template v-if="!backendModeEnabled" #footer>
+    <template v-if="!backendModeEnabled && hasSignupOptions" #footer>
       <p class="text-gray-500 dark:text-dark-400">
         {{ t('auth.dontHaveAccount') }}
         <router-link
@@ -206,7 +220,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { computed, ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { AuthLayout } from '@/components/layout'
@@ -235,6 +249,8 @@ const errorMessage = ref<string>('')
 const showPassword = ref<boolean>(false)
 
 // Public settings
+const registrationEnabled = ref<boolean>(false)
+const emailAuthEnabled = ref<boolean>(true)
 const turnstileEnabled = ref<boolean>(false)
 const turnstileSiteKey = ref<string>('')
 const linuxdoOAuthEnabled = ref<boolean>(false)
@@ -242,6 +258,11 @@ const discordOAuthEnabled = ref<boolean>(false)
 const backendModeEnabled = ref<boolean>(false)
 const passwordResetEnabled = ref<boolean>(false)
 const loginInvitationCodeVisible = ref<boolean>(false)
+const hasSignupOptions = computed(
+  () =>
+    (registrationEnabled.value && emailAuthEnabled.value) ||
+    (!backendModeEnabled.value && (linuxdoOAuthEnabled.value || discordOAuthEnabled.value))
+)
 
 // Turnstile
 const turnstileRef = ref<InstanceType<typeof TurnstileWidget> | null>(null)
@@ -279,6 +300,8 @@ onMounted(async () => {
 
   try {
     const settings = await getPublicSettings()
+    registrationEnabled.value = settings.registration_enabled
+    emailAuthEnabled.value = settings.email_auth_enabled
     turnstileEnabled.value = settings.turnstile_enabled
     turnstileSiteKey.value = settings.turnstile_site_key || ''
     linuxdoOAuthEnabled.value = settings.linuxdo_oauth_enabled
